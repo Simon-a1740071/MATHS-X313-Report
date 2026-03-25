@@ -20,7 +20,7 @@ temp_df |>
     values_from = "Value"
   ) |>
   mutate(Year = as.integer(stringr::str_remove(Year, "X")))|>
-  mutate(rename(
+  rename(
     #newName = oldName
     "GRR" = "Gross Reproduction Rate",
     "CBR" = "Crude Birth Rate",
@@ -36,15 +36,10 @@ temp_df |>
     "35-39Y" = "    35 - 39 Years",
     "40-44Y" = "    40 - 44 Years",
     "45-49Y" = "    45 - 49 Years"
-  )) -> rates_df
+  ) -> rates_df
 
 colnames(rates_df) #these names are have blank spaces
 #will need to clean them up so it's easier to analyse 
-
-head(rates_df)
-
-
-
 
 rates_df |>
   as_tsibble(index = Year)
