@@ -1,4 +1,4 @@
-pacman::p_load(fpp3, stringr)
+pacman::p_load(fpp3)
 
 read.csv(
   here::here("BirthsAndFertilityRatesAnnual.csv")) |>
@@ -9,11 +9,9 @@ temp_df
 sapply(temp_df, class) #checking year columns if theyre numeric
 colnames(temp_df)
 
-temp_df |>
-  filter(DataSeries != cols = contains("Live Births"))
-
-
-  mutate(across(where(is.character), as.numeric))
+temp_df |> 
+  filter(!stringr::str_detect(DataSeries, "Live-Births")) |>
+  mutate(across(where(is.character) & -any_of("DataSeries"), as.numeric))
 
 
   pivot_longer(
