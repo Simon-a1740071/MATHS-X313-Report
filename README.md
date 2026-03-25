@@ -2,6 +2,7 @@
 
 ## Comments
 __25/03/2026:__
+
 Hi, welcome to the repository for the Statistical Report from MATHS X313 - Time Series Analysis. 
 
 This repo will cover the time period: 24/03/2026 - 08/06/2026. During then I will be updating this every now and then. Mainly the R scripts and the report rather than this Read Me.
