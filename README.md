@@ -11,7 +11,7 @@ If I ever add additional comments here, do note it'll have the date listed above
 
 ## Contents
 
-* This repository will contain the follow: 
+* Will contain the following: 
 
   * R scripts concerning cleaning, EDA and modelling. File names should be self explanatory.
   
@@ -20,14 +20,6 @@ If I ever add additional comments here, do note it'll have the date listed above
   * Quarto Markdown files. These are similar to R Markdown. You can see how the report is formatted and how code chunks from the R script are pasted in here and using `knitr` are outputted to look neat. 
   
   * PDF files for the full EDA and Statistical Report. (Will consider optional HTML files later on)
-
-## References
-
-* Singapore Department of Statistics. (2026). _Births and fertility rates, annual_ [Data set]. data.gov.sg.
-https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view
-
-* Singapore Department of Statistics. (2026). _Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates_ [Data set]. SingStat Table Builder.
-https://tablebuilder.singstat.gov.sg/table/TS/M810091
 
 ## Exploratory Data Analysis
 
@@ -42,3 +34,11 @@ https://tablebuilder.singstat.gov.sg/table/TS/M810091
 * Will be discussing how best to assess which models are viable for forecasting from the periods 2013 to 2024. 
 
 ## Statistical Report
+
+## References
+
+* Singapore Department of Statistics. (2026). _Births and fertility rates, annual_ [Data set]. data.gov.sg.
+https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view
+
+* Singapore Department of Statistics. (2026). _Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates_ [Data set]. SingStat Table Builder.
+https://tablebuilder.singstat.gov.sg/table/TS/M810091
