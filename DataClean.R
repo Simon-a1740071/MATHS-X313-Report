@@ -8,6 +8,7 @@ head(temp_df)
 
 temp_df |>
   pivot_longer(
-    cols = contains("X["),
+    cols = contains("X20"),
     names_to = "year",
+    values_to = "DataSeries")
     
