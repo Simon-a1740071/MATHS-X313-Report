@@ -7,7 +7,7 @@ read.csv(
 
 head(df)
 
-# Summary statistics
+# Summary statistics 
 df |>
   summary()
 
