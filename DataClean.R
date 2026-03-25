@@ -6,3 +6,8 @@ read.csv(
 
 head(temp_df)
 
+temp_df |>
+  pivot_longer(
+    cols = contains("X["),
+    names_to = "year",
+    
