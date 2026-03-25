@@ -36,11 +36,11 @@ temp_df |>
     "35-39Y" = "    35 - 39 Years",
     "40-44Y" = "    40 - 44 Years",
     "45-49Y" = "    45 - 49 Years"
-  ) -> rates_df
+  ) -> temp_df2
 
-colnames(rates_df) #these names are have blank spaces
+colnames(temp_df2) #these names are have blank spaces
 #will need to clean them up so it's easier to analyse 
 
-rates_df |>
+temp2_df |>
   as_tsibble(index = Year)
   
