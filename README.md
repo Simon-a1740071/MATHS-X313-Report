@@ -27,7 +27,7 @@ If I ever add additional comments here, do note it'll have the date listed above
 
   * Mainly looking at Total Live Births (TLB) and Total Fertility Rate (TFR) from 1960 to 2024. 
 
-  * However other variables maybe be worth looking at. See the PDF document for the full EDA.
+  * However other variables maybe worth looking at. See the PDF document for the full EDA.
 
 * Should have at least one potential time series model for the TLB and TFR for the periods that span 1960 to 2012. 
 
