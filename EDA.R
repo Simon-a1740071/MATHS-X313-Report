@@ -21,4 +21,6 @@ df |>
 
 # seasonal plot not possible
 
-
+# relationships between variables
+df |>
+  GGally::ggpairs(columns = 2:18)
