@@ -41,6 +41,6 @@ temp_df |>
 colnames(temp_df2) #these names are have blank spaces
 #will need to clean them up so it's easier to analyse 
 
-temp2_df |>
+temp_df2 |>
   as_tsibble(index = Year)
   
