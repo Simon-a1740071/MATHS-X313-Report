@@ -11,5 +11,13 @@ colnames(temp_df)
 
 temp_df |> 
   mutate(across(where(is.character) & -any_of("DataSeries"),
-                as.numeric)) -> rates_df
-    
+                as.numeric)) |>
+  pivot_longer(
+    cols = -DataSeries,
+    names_to = "Year",
+    values_to = "Value"
+  ) |>
+  pivot_wider(
+    names_from = "DataSeries",
+    values_from = "Value"
+  ) 
