@@ -12,7 +12,7 @@ If I ever add additional comments here, do note it'll have the date listed above
 
 * This repository will contain the follow: 
 
-  * R scripts concerning cleaning and EDA. Filenames should be self explanatory.
+  * R scripts concerning cleaning, EDA and modelling. File names should be self explanatory.
   
   * The original and the cleaned datasets.
   
