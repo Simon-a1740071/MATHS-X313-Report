@@ -20,4 +20,5 @@ temp_df |>
     names_from = "DataSeries",
     values_from = "Value"
   ) |>
-  mutate(Year = stringr::str_remove(Year, "X"))
+  mutate(Year = as.integer(stringr::str_remove(Year, "X"))) -> rates_df
+  
