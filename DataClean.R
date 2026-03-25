@@ -2,7 +2,7 @@ pacman::p_load(fpp3)
 
 read.csv(
   here::here("BirthsAndFertilityRatesAnnual.csv")) |>
-  as.tibble() -> temp_df
+  as.tibble() -> temp_df #reading data as temp
 
 sapply(temp_df, class) #checking year columns if theyre numeric
 colnames(temp_df) #check colnames 
@@ -13,18 +13,18 @@ colnames(temp_df) #check colnames
 temp_df <-
   temp_df |> 
   mutate(across(where(is.character) & -any_of("DataSeries"),
-                as.numeric)) |>
-  pivot_longer(
+                as.numeric)) |> #converting all variables as numeric except first column
+  pivot_longer( #pivoting year col names so their a single column, gives too many rows
     cols = -DataSeries,
     names_to = "Year",
     values_to = "Value"
   ) |>
-  pivot_wider(
+  pivot_wider( # pivot the DataSeries to be colnames, fixes the obscene number of rows
     names_from = "DataSeries",
     values_from = "Value"
-  ) |>
+  ) |> #converts years to integers, not necessary for time series but just did it anyways
   mutate(Year = as.integer(stringr::str_remove(Year, "X")))|>
-  rename(
+  rename( #renaming variables so it's easier to use in later anaylsis
     #newName = oldName
     "GRR" = "Gross Reproduction Rate",
     "CBR" = "Crude Birth Rate",
@@ -43,8 +43,8 @@ temp_df <-
   )
 
 
-temp_df |>
+temp_df |> #converts to time series dateframe
   as_tsibble(index = Year) -> fertility_tsd
   
-fertility_tsd |>
+fertility_tsd |> #exports as CSV
   write.csv("AnnualFertilityData_Cleaned.csv", row.names = FALSE)
