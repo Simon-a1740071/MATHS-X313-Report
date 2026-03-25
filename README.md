@@ -25,13 +25,13 @@ If I ever add additional comments here, do note it'll have the date listed above
 
 * Looking at the Singapore birth and fertility data.
 
-** Mainly looking at Total Live Births (TLB) and Total Fertility Rate (TFR) from 1960 to 2024. 
+  * Mainly looking at Total Live Births (TLB) and Total Fertility Rate (TFR) from 1960 to 2024. 
 
-** However other variables maybe be worth looking at. See the PDF document for the full EDA.
+  * However other variables maybe be worth looking at. See the PDF document for the full EDA.
 
 * Should have at least one potential time series model for the TLB and TFR for the periods that span 1960 to 2012. 
 
-* Will be discussing how best to assess which models are viable for forecasting from the periods 2013 to 2024. 
+  * Will be discussing how best to assess which models are viable for forecasting from the periods 2013 to 2024. 
 
 ## Statistical Report
 
