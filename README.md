@@ -6,7 +6,7 @@ Hi, welcome to the repository for the Statistical Report from MATHS X313 - Time 
 
 This repo will cover the time period: 24/03/2026 - 08/06/2026. During then I will be updating this every now and then. Mainly the R scripts and the report rather than this Read Me.
 
-If I ever add additional comments here, do note it'll be have the date listed above it like so.
+If I ever add additional comments here, do note it'll have the date listed above it like here.
 
 ## Contents
 
