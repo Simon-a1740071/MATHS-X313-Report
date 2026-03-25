@@ -5,9 +5,13 @@ read.csv(
   as.tibble() -> temp_df
 
 sapply(temp_df, class) #checking year columns if theyre numeric
-colnames(temp_df) #check colnames
+colnames(temp_df) #check colnames 
+#these names are have blank spaces
+#will need to clean them up so it's easier to analyse 
 
-temp_df |> 
+
+temp_df <-
+  temp_df |> 
   mutate(across(where(is.character) & -any_of("DataSeries"),
                 as.numeric)) |>
   pivot_longer(
@@ -36,11 +40,11 @@ temp_df |>
     "35-39Y" = "    35 - 39 Years",
     "40-44Y" = "    40 - 44 Years",
     "45-49Y" = "    45 - 49 Years"
-  ) -> temp_df2
+  )
 
-colnames(temp_df2) #these names are have blank spaces
-#will need to clean them up so it's easier to analyse 
 
-temp_df2 |>
-  as_tsibble(index = Year)
+temp_df |>
+  as_tsibble(index = Year) -> fertility_tsd
   
+fertility_tsd |>
+  write.csv("AnnualFertilityData_Cleaned.csv", row.names = FALSE)
