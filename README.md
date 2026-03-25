@@ -12,13 +12,13 @@ If I ever add additional comments here, do note it'll be have the date listed ab
 
 * This repository will contain the follow: 
 
-  ** R scripts concerning cleaning and EDA. Filenames should be self explanatory.
+  * R scripts concerning cleaning and EDA. Filenames should be self explanatory.
   
-  ** The original and the cleaned datasets.
+  * The original and the cleaned datasets.
   
-  ** Quarto Markdown files. These are similar to R Markdown. You can see how the report is formatted and how code chunks from the R script are pasted in here and using `knitr` are outputted to look neat. 
+  * Quarto Markdown files. These are similar to R Markdown. You can see how the report is formatted and how code chunks from the R script are pasted in here and using `knitr` are outputted to look neat. 
   
-  ** PDF files for the full EDA and Statistical Report. (Will consider optional HTML files later on)
+  * PDF files for the full EDA and Statistical Report. (Will consider optional HTML files later on)
 
 ## References
 
