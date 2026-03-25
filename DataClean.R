@@ -10,12 +10,6 @@ sapply(temp_df, class) #checking year columns if theyre numeric
 colnames(temp_df)
 
 temp_df |> 
-  filter(!stringr::str_detect(DataSeries, "Live-Births")) |>
-  mutate(across(where(is.character) & -any_of("DataSeries"), as.numeric))
-
-
-  pivot_longer(
-    cols = contains("X20"),
-    names_to = "year",
-    values_to = "DataSeries")
+  mutate(across(where(is.character) & -any_of("DataSeries"),
+                as.numeric)) -> rates_df
     
