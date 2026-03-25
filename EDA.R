@@ -5,6 +5,8 @@ read.csv(
 ) |>
   tsibble(index = Year) -> df
 
+head(df)
+
 # Summary statistics
 df |>
   summary()
@@ -16,3 +18,7 @@ df |>
 
 df |>
   autoplot(TLB)
+
+# seasonal plot not possible
+
+
