@@ -8,3 +8,11 @@ read.csv(
 # Summary statistics
 df |>
   summary()
+
+#time plot
+
+df |>
+  autoplot(TFR)
+
+df |>
+  autoplot(TLB)
