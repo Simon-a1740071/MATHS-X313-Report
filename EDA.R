@@ -66,7 +66,7 @@ df |>
   labs(y = "Gross Reproduction Rate", x = "Year") -> a6
 
 df |>
-  autoplot(NPR, colour = "blue") +
+  autoplot(NRR, colour = "blue") +
   labs(y = "Net Reproduction Rate", x = "Year") -> a7
 
 a5 / a6 / a7
