@@ -9,6 +9,11 @@ head(df)
 
 # Summary statistics 
 df |>
+  select(TFR) |>
+  summary()
+
+df |>
+  select(TLB) |>
   summary()
 
 #time plot
@@ -22,5 +27,3 @@ df |>
 # seasonal plot not possible
 
 # relationships between variables
-df |>
-  GGally::ggpairs(columns = 2:18)
