@@ -6,15 +6,13 @@ read.csv(
 
 sapply(temp_df, class) #checking year columns if theyre numeric
 colnames(temp_df) #check colnames 
-#these names are have blank spaces
 #will need to clean them up so it's easier to analyse 
 
-
-temp_df <-
-  temp_df |> 
-  mutate(across(where(is.character) & -any_of("DataSeries"),
-                as.numeric)) |> #converting all variables as numeric except first column
-  pivot_longer( #pivoting year col names so their a single column, gives too many rows
+temp_df |> 
+  select(-DataSeries) |> #selects all cols not DataSeries
+  mutate(across(is.character,as.numeric)) |> #Converts to numeric
+  mutate(DataSeries = temp_df$DataSeries) |> #reattaches the DataSeries col
+  pivot_longer( #pivoting year col names so theyre a single column, gives too many rows
     cols = -DataSeries,
     names_to = "Year",
     values_to = "Value"
@@ -22,9 +20,9 @@ temp_df <-
   pivot_wider( # pivot the DataSeries to be colnames, fixes the obscene number of rows
     names_from = "DataSeries",
     values_from = "Value"
-  ) |> #converts years to integers, not necessary for time series but just did it anyways
+  ) |> #converts years to integers, not necessary for time series but just did it anyway
   mutate(Year = as.integer(stringr::str_remove(Year, "X")))|>
-  rename( #renaming variables so it's easier to use in later anaylsis
+  rename( #renaming variables so it's easier to use in later analysis
     #newName = oldName
     "GRR" = "Gross Reproduction Rate",
     "CBR" = "Crude Birth Rate",
@@ -40,8 +38,7 @@ temp_df <-
     "35-39Y" = "    35 - 39 Years",
     "40-44Y" = "    40 - 44 Years",
     "45-49Y" = "    45 - 49 Years"
-  )
-
+  ) -> temp_df #updates the dataframe
 
 temp_df |> #converts to time series dateframe
   as_tsibble(index = Year) -> fertility_tsd
