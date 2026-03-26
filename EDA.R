@@ -25,17 +25,6 @@ df |>
 #time plot
 
 df |>
-  ggplot(aes(Year, TFR)) +
-  #geom_point() +
-  geom_line()
-
-df |>
-  ggplot(aes(Year, TLB)) +
-  #geom_point() +
-  geom_line()
-
-#alternative time plot
-df |>
   autoplot(TFR, colour = "orange") +
   labs( y = "Total Fertility Rate", x = "Year") -> a1
 
