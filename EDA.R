@@ -37,11 +37,11 @@ df |>
 #alternative time plot
 df |>
   autoplot(TFR, colour = "orange") +
-  labs( y = "Total Fertility Rate") -> a1
+  labs( y = "Total Fertility Rate", x = "Year") -> a1
 
 df |>
   autoplot(TLB, colour = "blue") +
-  labs(y = "Total Live Births") -> a2
+  labs(y = "Total Live Births", x = "Year") -> a2
 
 a1 / a2
 
