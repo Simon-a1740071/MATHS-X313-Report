@@ -1,4 +1,4 @@
-pacman::p_load(fpp3)
+pacman::p_load(fpp3, patchwork)
 
 read.csv(
   here::here("AnnualFertilityData_Cleaned.csv"), check.names = FALSE
@@ -6,6 +6,12 @@ read.csv(
   tsibble(index = Year) -> df
 
 head(df)
+colnames(df)
+# 6 rows 18 columns
+# Frequency of observations 1 year apart
+# index by year
+# measured variables TFR TLB
+# no key variables that uniquely identifies time series, e.g. countries
 
 # Summary statistics 
 df |>
@@ -19,11 +25,63 @@ df |>
 #time plot
 
 df |>
-  autoplot(TFR)
+  ggplot(aes(Year, TFR)) +
+  #geom_point() +
+  geom_line()
 
 df |>
-  autoplot(TLB)
+  ggplot(aes(Year, TLB)) +
+  #geom_point() +
+  geom_line()
 
-# seasonal plot not possible
+#alternative time plot
+df |>
+  autoplot(TFR, colour = "orange") +
+  labs( y = "Total Fertility Rate") -> a1
 
+df |>
+  autoplot(TLB, colour = "blue") +
+  labs(y = "Total Live Births") -> a2
+
+a1 / a2
+
+df |>
+  select(Year, "15-19Y":"45-49Y") |>
+  pivot_longer(
+    cols = -Year,
+    names_to = "age_group",
+    values_to = "TFR") |>
+  ggplot(aes(Year, y = TFR, colour =
+               age_group)) +
+  geom_line() +
+  labs(y = "Total Fertility Rate") -> a3
+
+df |>
+  select(Year, "Chinese":"Indians") |>
+  pivot_longer(
+    cols = -Year,
+    names_to = "ethnicity",
+    values_to = "TFR") |>
+  ggplot(aes(Year, TFR, colour = ethnicity)) +
+  geom_line() +
+  labs(y = "Total Fertility Rate") -> a4
+  
+a1 / a3 / a4
+
+# seasonal plot, 
+# no seasonaility 
+
+# scatterplots
 # relationships between variables
+
+# lag plots
+df |>
+  gg_lag(TFR)
+
+df |>
+  ACF(TFR) |>
+  autoplot()
+
+df |>
+  ACF(TLB) |>
+  autoplot()
