@@ -68,6 +68,19 @@ df |>
   
 a1 / a3 / a4
 
+df |>
+  autoplot(CBR, colour = "red") +
+  labs( y = "Crude Birth Rate", x = "Year") -> a5
+  
+df |>
+  autoplot(GRR, colour = "purple") +
+  labs(y = "Gross Reproduction Rate", x = "Year") -> a6
+
+df |>
+  autoplot(NPR, colour = "blue") +
+  labs(y = "Net Reproduction Rate", x = "Year") -> a7
+
+a5 / a6 / a7
 # seasonal plot, 
 # no seasonaility 
 
