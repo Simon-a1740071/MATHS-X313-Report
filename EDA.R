@@ -34,6 +34,7 @@ df |>
 
 a1 / a2
 
+# Age groups
 df |>
   select(Year, "15-19Y":"45-49Y") |>
   pivot_longer(
@@ -45,6 +46,7 @@ df |>
   geom_line() +
   labs(y = "Total Fertility Rate") -> a3
 
+# Ethnicity
 df |>
   select(Year, "Chinese":"Indians") |>
   pivot_longer(
@@ -57,6 +59,7 @@ df |>
   
 a1 / a3 / a4
 
+# Birth and reproduction rates
 df |>
   autoplot(CBR, colour = "red") +
   labs( y = "Crude Birth Rate", x = "Year") -> a5
@@ -80,6 +83,7 @@ a5 / a6 / a7
 df |>
   gg_lag(TFR)
 
+# ACF
 df |>
   ACF(TFR) |>
   autoplot()
@@ -87,3 +91,24 @@ df |>
 df |>
   ACF(TLB) |>
   autoplot()
+
+# PACF
+df |>
+  PACF(TFR) |>
+  autoplot()
+
+df |>
+  PACF(TLB) |>
+  autoplot()
+
+# Time decomposition
+df |>
+  model(stl = STL(TFR)) |>
+  components() |>
+  autoplot()
+
+df |>
+  model(stl = STL(TLB)) |>
+  components() |>
+  autoplot()
+
