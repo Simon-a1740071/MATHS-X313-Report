@@ -19,9 +19,20 @@ df |>
   summary()
 
 df |>
+  features(TFR, list(mean = mean, 
+                     variance = var,
+                     sd = sd,
+                     quantile))
+  
+df |>
   select(TLB) |>
   summary()
 
+df |>
+  features(TLB, list(mean = mean,
+                     variance = var,
+                     sd = sd,
+                     quantile))
 #time plot
 
 df |>
@@ -89,8 +100,14 @@ df |>
   autoplot()
 
 df |>
+  features(TFR, feat_acf)
+
+df |>
   ACF(TLB) |>
   autoplot()
+
+df |>
+  features(TLB, feat_acf)
 
 # PACF
 df |>
@@ -98,8 +115,14 @@ df |>
   autoplot()
 
 df |>
+  features(TFR, feat_pacf)
+
+df |>
   PACF(TLB) |>
   autoplot()
+
+df |>
+  features(TLB, feat_pacf)
 
 # Time decomposition
 df |>
