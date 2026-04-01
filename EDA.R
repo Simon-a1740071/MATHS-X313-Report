@@ -23,18 +23,10 @@ colnames(df)
 
 # Summary statistics 
 df |>
-  select(TFR) |>
-  summary()
-
-df |>
   features(TFR, list(mean = mean, 
                      variance = var,
                      sd = sd,
                      quantile))
-  
-df |>
-  select(TLB) |>
-  summary()
 
 df |>
   features(TLB, list(mean = mean,
@@ -65,11 +57,13 @@ train |>
 
 train |>
   ACF(TFR) |>
-  autoplot() # suggests an MA model
+  autoplot() # can only interpret if time series is stationary, this has a trend
+# maybe influencing these plots too much
+# however significant at each lag until 8 but tails off
 
 train |>
   PACF(TFR) |>
-  autoplot() # no AR model suggested
+  autoplot() # only lag 1 significant sharp cut off suggests AR(1)
 
 train |>
   features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
@@ -78,35 +72,41 @@ train |>
   features(TFR, unitroot_ndiffs) #need to take 2nd order differences 
 
 train |>
-  autoplot(difference(TFR, 2))
+  features(TFR |>
+             difference(2), unitroot_kpss) # <0.05 reject H0: stationary
 
 train |>
-  ACF(difference(TFR, 2)) |>
-  autoplot()
-
-train |>
-  features(difference(TFR, 2), unitroot_kpss) # <0.05 reject H0: stationary
+  features(TFR |>
+             difference(2), unitroot_ndiffs)
 
 train |>
   autoplot(difference(TFR, 2) |>
-           difference(1))
+             difference(1)) -> pl0
+
  train |>
    features(difference(TFR, 2) |>
               difference(1), unitroot_ndiffs) # no more differencing needed
  
- train |>
-   features(difference(TFR, 2) |>
-              difference(1), unitroot_kpss) #>0.05 accept H0: stationary
- 
 train |>
   ACF(difference(TFR, 2) |>
         difference(1)) |>
-  autoplot()
+  autoplot() -> pl1 #lag 2, 12, 14 are significant
+# 
 
 train |>
   PACF(difference(TFR, 2) |>
          difference(1)) |>
-  autoplot()
+  autoplot() -> pl2 #lags 2, 4, 6, 8, 9, 11, 12, 15 significant. 
+
+
+pl0 / pl1 / pl2
+#maybe over fitting
+#time series non random maybe because of several autocorrealtions are nonzero
+#high correlation in lag 2
+#ACF: sharp cut off after lag 1
+#PACF: no sharp cut off, seems to decay gradually
+#overall suggests an MA model
+#ARIMA(0,3,1)
 
 ### TLB
 
@@ -115,11 +115,11 @@ train |>
 
 train |>
   ACF(TLB/10000) |>
-  autoplot()
+  autoplot() # gradually decay
 
 train |>
   PACF(TLB/10000) |>
-  autoplot()
+  autoplot() # sharp cutoff after lag 1, maybe AR(1)
   
 train |>
   features(TLB/10000, unitroot_kpss) # non-stationary
@@ -129,7 +129,7 @@ train |>
 
 train |>
   mutate(mod_TLB = TLB/10000) |>
-  autoplot(difference(mod_TLB, 1))
+  autoplot(difference(mod_TLB, 1)) -> pl0a
 
 train |>
   mutate(mod_TLB = TLB/10000) |>
@@ -142,19 +142,25 @@ train |>
 train |>
   mutate(mod_TLB = TLB/10000) |>
   ACF(difference(mod_TLB, 1)) |>
-  autoplot()
+  autoplot() -> pl1a
 
 train |>
   mutate(mod_TLB = TLB/10000) |>
   PACF(difference(mod_TLB, 1)) |>
-  autoplot()
+  autoplot() -> pl2a
 
+
+pl0a / pl1a / pl2a
 #TLB
 #decreasing trend
 #non-stationary
 #no seasonaility
 #spikes from mid 1980 to 2000 corresponds with a slight increase in TFR in that same period
 #transformation needed
+
+#acf no clear pattern suggesting MA
+#pacf no clear pattern suggesting AR
+#may consider an arima model as only differenced ARIMA(0,1,0)
 
 
 
