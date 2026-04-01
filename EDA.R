@@ -98,8 +98,6 @@ train |>
    features(difference(TFR, 2) |>
               difference(1), unitroot_kpss) #>0.05 accept H0: stationary
  
-
-
 train |>
   ACF(difference(TFR, 2) |>
         difference(1)) |>
@@ -114,23 +112,42 @@ train |>
 
 train |>
   autoplot(TLB/10000) 
+
+train |>
+  ACF(TLB/10000) |>
+  autoplot()
+
+train |>
+  PACF(TLB/10000) |>
+  autoplot()
   
 train |>
-  features(TLB/10000, unitroot_kpss) #non-stationary
+  features(TLB/10000, unitroot_kpss) # non-stationary
 
 train |>
   features(TLB/10000, unitroot_ndiffs) # need first order difference
 
 train |>
   mutate(mod_TLB = TLB/10000) |>
-  autoplot(
-    mod_TLB |>
-      difference(1)
-  )
+  autoplot(difference(mod_TLB, 1))
 
 train |>
-  mutate(diff = 1) |>
-  features(diff, unitroot_ndiffs) #suggests ARIMA model
+  mutate(mod_TLB = TLB/10000) |>
+  features(difference(mod_TLB, 1), unitroot_kpss) # stationary
+
+train |>
+  mutate(mod_TLB = TLB/10000) |>
+  features(difference(mod_TLB, 1), unitroot_ndiffs)
+
+train |>
+  mutate(mod_TLB = TLB/10000) |>
+  ACF(difference(mod_TLB, 1)) |>
+  autoplot()
+
+train |>
+  mutate(mod_TLB = TLB/10000) |>
+  PACF(difference(mod_TLB, 1)) |>
+  autoplot()
 
 #TLB
 #decreasing trend
@@ -207,11 +224,6 @@ df |>
 
 df |>
   features(TLB, feat_acf)
-
-
-
-
-
 
 # PACF
 df |>
