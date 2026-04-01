@@ -44,6 +44,49 @@ df |>
   labs(y = "Total Live Births", x = "Year") -> a2
 
 a1 / a2
+#TFR
+#decreasing trend
+#non-stationary
+#no seanonality
+
+#stationarity formal check
+df |>
+  features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
+
+df |>
+  features(TFR, unitroot_ndiffs) #suggests need to take 2nd order differences 
+
+df |>
+  autoplot(TFR)
+
+df |>
+  autoplot(TFR |> difference(2))
+
+df |>
+  mutate(diff = 2) |>
+  features(diff, unitroot_ndiffs) #no more needed
+
+
+df |>
+  features(TLB, unitroot_kpss) #non-stationary
+
+df |>
+  features(TLB, unitroot_ndiffs) # need one
+
+df |>
+  autoplot(TFR)
+
+df |>
+  autoplot(difference(TFR))
+
+#TLB
+#decreasing trend
+#non-stationary
+#no seasonaility
+#spikes from mid 1980 to 2000 corresponds with a slight increase in TFR in that same period
+#transformation needed
+
+
 
 # Age groups
 df |>
@@ -93,6 +136,7 @@ a5 / a6 / a7
 # lag plots
 df |>
   gg_lag(TFR)
+# not too useful
 
 # ACF
 df |>
