@@ -5,6 +5,14 @@ read.csv(
 ) |>
   tsibble(index = Year) -> df
 
+df |>
+  select(Year, TFR, TLB) |>
+  filter(Year <= 2012) -> train
+
+df |>
+  select(Year, TFR, TLB) |>
+  filter(Year > 2012) -> test
+
 head(df)
 colnames(df)
 # 6 rows 18 columns
@@ -47,34 +55,45 @@ a1 / a2
 #TFR
 #decreasing trend
 #non-stationary
-#no seanonality
+#no seasonality
 
 #stationarity formal check
-df |>
-  features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
-
-df |>
-  features(TFR, unitroot_ndiffs) #suggests need to take 2nd order differences 
-
-df |>
+train |>
   autoplot(TFR)
 
-df |>
-  autoplot(TFR |> difference(2))
+train |>
+  features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
 
-df |>
+train |>
+  features(TFR, unitroot_ndiffs) #suggests need to take 2nd order differences 
+
+train |>
+  autoplot(TFR |> difference(2)) #differencing suggests ARIMA model
+
+train |>
   mutate(diff = 2) |>
   features(diff, unitroot_ndiffs) #no more needed
 
 
-df |>
-  features(TLB, unitroot_kpss) #non-stationary
+train |>
+  autoplot(TLB/10000) 
+  
+train |>
+  features(TLB/10000, unitroot_kpss) #non-stationary
 
-df |>
-  features(TLB, unitroot_ndiffs) # need first order difference
+train |>
+  features(TLB/10000, unitroot_ndiffs) # need first order difference
 
+train |>
+  mutate(mod_TLB = TLB/10000) |>
+  autoplot(
+    mod_TLB |>
+      difference(1)
+  )
 
-
+train |>
+  mutate(diff = 1) |>
+  features(diff, unitroot_ndiffs) #suggests ARIMA model
 
 #TLB
 #decreasing trend
@@ -135,8 +154,9 @@ df |>
   gg_lag(TFR)
 # not too useful
 
-# ACF
-df |>
+# ACF, cant determine AR and MA from these, 
+#the original time series has dependence on trend
+df |> 
   ACF(TFR) |>
   autoplot()
 
