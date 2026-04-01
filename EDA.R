@@ -85,14 +85,14 @@ train |>
   autoplot()
 
 train |>
-  features(difference(TFR, 2), unitroot_kpss) #not stationary
+  features(difference(TFR, 2), unitroot_kpss) # <0.05 reject H0: stationary
 
 train |>
   autoplot(difference(TFR, 2) |>
            difference(1))
  train |>
    features(difference(TFR, 2) |>
-              difference(1), unitroot_ndiffs)
+              difference(1), unitroot_ndiffs) # no more differencing needed
  
  train |>
    features(difference(TFR, 2) |>
