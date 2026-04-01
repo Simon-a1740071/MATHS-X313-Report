@@ -58,8 +58,14 @@ a1 / a2
 #no seasonality
 
 #stationarity formal check
+
+### TFR 
 train |>
   autoplot(TFR)
+
+train |>
+  ACF(TFR) |>
+  autoplot()
 
 train |>
   features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
@@ -68,12 +74,32 @@ train |>
   features(TFR, unitroot_ndiffs) #suggests need to take 2nd order differences 
 
 train |>
+  autoplot(difference(TFR))
+
+train |>
+  ACF(difference(TFR)) |>
+  autoplot()
+
+train |>
+  ACF(difference(TFR, 2)) |>
+  autoplot()
+
+train |>
   autoplot(TFR |> difference(2)) #differencing suggests ARIMA model
 
 train |>
-  mutate(diff = 2) |>
-  features(diff, unitroot_ndiffs) #no more needed
+  mutate(diff = difference(TFR, 2)) |>
+  features(diff, feat_stl)  #no more needed
 
+train |>
+  mutate(diff = difference(TFR, 2)) |>
+  features(diff, unitroot_kpss) 
+
+train |>
+  mutate(diff = difference(TFR, 2)) |>
+  features(diff, unitroot_ndiffs) 
+
+### TLB
 
 train |>
   autoplot(TLB/10000) 
@@ -170,6 +196,11 @@ df |>
 
 df |>
   features(TLB, feat_acf)
+
+
+
+
+
 
 # PACF
 df |>
