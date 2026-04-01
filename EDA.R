@@ -156,6 +156,7 @@ df |>
 
 # ACF, cant determine AR and MA from these, 
 #the original time series has dependence on trend
+#need to look at acf and pacf of the transformed TFR and TLB instead
 df |> 
   ACF(TFR) |>
   autoplot()
