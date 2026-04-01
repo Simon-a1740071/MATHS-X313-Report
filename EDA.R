@@ -65,39 +65,50 @@ train |>
 
 train |>
   ACF(TFR) |>
-  autoplot()
+  autoplot() # suggests an MA model
+
+train |>
+  PACF(TFR) |>
+  autoplot() # no AR model suggested
 
 train |>
   features(TFR, unitroot_kpss) # <0.05 reject H0: Stationary
 
 train |>
-  features(TFR, unitroot_ndiffs) #suggests need to take 2nd order differences 
+  features(TFR, unitroot_ndiffs) #need to take 2nd order differences 
 
 train |>
-  autoplot(difference(TFR))
-
-train |>
-  ACF(difference(TFR)) |>
-  autoplot()
+  autoplot(difference(TFR, 2))
 
 train |>
   ACF(difference(TFR, 2)) |>
   autoplot()
 
 train |>
-  autoplot(TFR |> difference(2)) #differencing suggests ARIMA model
+  features(difference(TFR, 2), unitroot_kpss) #not stationary
 
 train |>
-  mutate(diff = difference(TFR, 2)) |>
-  features(diff, feat_stl)  #no more needed
+  autoplot(difference(TFR, 2) |>
+           difference(1))
+ train |>
+   features(difference(TFR, 2) |>
+              difference(1), unitroot_ndiffs)
+ 
+ train |>
+   features(difference(TFR, 2) |>
+              difference(1), unitroot_kpss) #>0.05 accept H0: stationary
+ 
+
 
 train |>
-  mutate(diff = difference(TFR, 2)) |>
-  features(diff, unitroot_kpss) 
+  ACF(difference(TFR, 2) |>
+        difference(1)) |>
+  autoplot()
 
 train |>
-  mutate(diff = difference(TFR, 2)) |>
-  features(diff, unitroot_ndiffs) 
+  PACF(difference(TFR, 2) |>
+         difference(1)) |>
+  autoplot()
 
 ### TLB
 
