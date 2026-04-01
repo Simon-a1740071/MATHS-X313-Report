@@ -71,13 +71,10 @@ df |>
   features(TLB, unitroot_kpss) #non-stationary
 
 df |>
-  features(TLB, unitroot_ndiffs) # need one
+  features(TLB, unitroot_ndiffs) # need first order difference
 
-df |>
-  autoplot(TFR)
 
-df |>
-  autoplot(difference(TFR))
+
 
 #TLB
 #decreasing trend
