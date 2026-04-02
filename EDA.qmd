@@ -12,7 +12,7 @@ editor: visual
 
 #### Correlograms
 
-#### Potential Models
+#### Modelling
 
 ### Research Questions
 
