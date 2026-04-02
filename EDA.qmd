@@ -3,3 +3,17 @@ title: "Exploratory Data Analysis"
 format: pdf
 editor: visual
 ---
+
+### Data
+
+#### Summary Statistics
+
+#### Time Plots
+
+#### Correlograms
+
+#### Potential Models
+
+### Research Questions
+
+### Statistical Appendix
