@@ -129,6 +129,8 @@ fertility_df |>
   gg_tsdisplay(TFR, plot_type = 'partial')
 ```
 
+The time series for total fertility rate, it's time plot has a decreasing trend. As it's annual data there is no seasonality. It's correlogram has a gradual decay. Past lag 10 the ACF is no longer significant. The partial correlogram cuts off sharply after lag 1. No more lags after have a significant PACF. Overall this suggests an autoregressive model could be considered. However, because of it's non-stationarity and decreasing trend this isn't a definitive conclusion. Since there's a possibility of the trend influencing these correlogram. Transformation and differencing should be considered to ensure stationarity.
+
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   model(stl = STL(TFR)) |>
@@ -136,10 +138,14 @@ fertility_df |>
   autoplot()
 ```
 
+The time decomposition of the total fertility rate further supports that it's a decreasing trend with no stationarity. The fluctuations seen in the remainder explains for the peaks and troughs seen in the time series. What these fluctuations could be is a potential avenue for further exploration. Additionally in the trend, it's clearly seen that it could be of an exponential decrease. So a logarithmic transform could be a consideration.
+
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   gg_tsdisplay(TLB_s, plot_type = 'partial')
 ```
+
+Total Live Births, it's time plot displays a similar non-seasonal decreasing trend. In addition, both time plots display a peak increase in their respective variables, for the periods between the 1980s and 2000s. This could be an indication of socio-economical features not present in this data that could worth investigating. The correlogram features an ACF that decays gradually and is not significant after lag 6. It's partial correlogram, a significant peak in it's PACF and cuts off afterwards. Suggesting a similar consideration of autoregressive and a similar conclusion that the trend is influencing these.
 
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
@@ -147,6 +153,10 @@ fertility_df |>
   components() |>
   autoplot()
 ```
+
+The Total Live Births decomposition shows that the fluctuations seen in the time plot are explained by a remainder, leaving only a decreasing trend. This noticeable supports the the conclusion that between 1980 and 2000 there was an increase in live births bucking the trend.
+
+Overall there's a correlation between fertility rate and live births. It's relationship could be worth considering if one is an significant indicator of the other.
 
 #### Modelling
 
