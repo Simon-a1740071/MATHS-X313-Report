@@ -51,7 +51,7 @@ df |>
   autoplot()
 
 df |>
-  model(stl = STL(TLB)) |>
+  model(stl = STL(TLB/1e4)) |>
   components() |>
   autoplot()
 
@@ -66,6 +66,21 @@ df |>
 ### TFR 
 train |>
   autoplot(TFR)
+
+train |>
+  autoplot(log(TFR))
+
+train |>
+  autoplot(sqrt(TFR))
+
+train |>
+  autoplot(TFR^(1/3))
+
+train |>
+  features(TFR, features = guerrero)
+
+train |>
+  autoplot(box_cox(TFR, 0.119))
 
 train |>
   ACF(TFR) |>
@@ -135,7 +150,9 @@ pl0 / pl1 / pl2
 ### TLB
 
 train |>
-  autoplot(TLB/10000) 
+  mutate(TLB_S = TLB / 1e4) |>
+  autoplot(log(TLB/1e4) |>
+             difference(1))
 
 train |>
   mutate(TLB_S = TLB / 1e4) |>
