@@ -8,7 +8,7 @@ editor: visual
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 #Libraries and the Dataset
-pacman::p_load(fpp3)
+pacman::p_load(fpp3, patchwork)
 
 read.csv(
   here::here("AnnualFertilityData_Cleaned.csv"), check.names = FALSE
@@ -17,10 +17,35 @@ read.csv(
   mutate(TLB_s = TLB / 1e4) -> fertility_df
 ```
 
+The dataset has been provided by the Singapore Department of Statistics. It primarily covers births and fertility rates within Singapore, collecting data concerning a variety of variables from 1960 to 2025. However for the purpose of this data analysis the main variables that will be considered are:
+
+-   `Year`:
+
+    -   The EDA will be concerned with the entire period of 1960 to 2025. However for modelling and forecasting, it pertains to the periods 1960 to 2012, and 2013 to 2024 respectively.
+
+```{=html}
+<!-- -->
+```
+-   `TLF`: Total Fertility Rate
+
+    -   This refers to the average number of live-births each female would have during her reproductive years, subjected to prevailing age-specific fertility rates in the population in the given year.
+
+    -   Additionally data prior to 1980 pertains to total population while onwards pertains to resident population (Singaporean citizens and permanent residents.
+
+-   `TLB`: Total Live Births
+
+    -   Data is concerned with all live births within Singapore and its territorial waters as registered by the Singaporean government at the year of birth.
+
+-    `TLB_s`: Total Live Births scaled
+
+    -   This is an additional variable introduced. It is a down scaling of the live births data that will be used for ease of analysis.
+
+    -   E.g. If TLB were recorded 10,000 at the time then it's down scale would be 1.
+
 ```{r, echo = FALSE, message = FALSE}
 head(fertility_df) |>
   select(Year, TFR, TLB, TLB_s) |>
-  knitr::kable(caption = "Table 1:")
+  knitr::kable(caption = "Table 1: The first 6 rows of the dataset for display")
 ```
 
 #### Summary Statistics
@@ -32,7 +57,7 @@ fertility_df |>
                      "Standard Deviation" = sd,
                      quantile)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 2: ")
+  knitr::kable(caption = "Table 2: Summary statistics of the Total Fertility Rate")
 ```
 
 ```{r, echo = FALSE, message = FALSE}
@@ -43,21 +68,49 @@ fertility_df |>
                      "Standard Deviation" = sd,
                      quantile)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 4: ")
+  knitr::kable(caption = "Table 4: Sumamry statistics of the scaled Total Live Births")
+```
+
+#### Box-plots
+
+```{r}
+fertility_df |>
+  ggplot(aes(x = TFR, fill = after_stat(width))) +
+  geom_boxplot() +
+  ggsci::scale_fill_material("blue") +
+  theme_light() +
+  theme(legend.position = "none") -> b1
+
+fertility_df |>
+  ggplot(aes(x = TLB_s, fill = after_stat(width))) +
+  geom_boxplot() +
+  ggsci::scale_fill_material("blue") +
+  theme_light() +
+  theme(legend.position = "none") -> b2
+
+b1 / b2
 ```
 
 #### Histograms
 
 ```{r}
 fertility_df |>
-  ggplot(aes(x = TFR)) +
-  geom_histogram(bins = 30) 
+  ggplot(aes(x = TFR, fill = after_stat(count))) +
+  geom_histogram() + 
+  ggsci::scale_fill_material("blue") +
+  geom_histogram(col = "black") +
+  theme_light() +
+  theme(legend.position = "none")
 ```
 
 ```{r}
 fertility_df |>
-  ggplot(aes(x = TLB_s)) +
-  geom_histogram(bins = 30) 
+  ggplot(aes(x = TLB_s, fill = after_stat(count))) +
+  geom_histogram() +
+  ggsci::scale_fill_material("blue") +
+  geom_histogram(col = "black") +
+  theme_light() +
+  theme(legend.position = "none")
 ```
 
 #### Time Plots and Correlograms 
@@ -91,6 +144,16 @@ fertility_df |>
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   filter(Year <= 2012) -> train_df
+```
+
+```{r}
+fertility_df |>
+  autoplot(log(TFR)) -> p1
+
+fertility_df |>
+  autoplot(TFR) -> p2
+
+p1 / p2
 ```
 
 ```{r, echo = FALSE, message = FALSE}
@@ -149,3 +212,12 @@ bind_rows(
 ### Research Questions
 
 ### Statistical Appendix
+
+### References
+
+-   Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg. <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
+
+```{=html}
+<!-- -->
+```
+-   Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder. <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
