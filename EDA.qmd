@@ -39,13 +39,15 @@ The dataset has been provided by the Singapore Department of Statistics. It prim
 
     -   E.g. If TLB were recorded 10,000 at the time then it's down scale would be 1.
 
+\newpage
+
+#### Summary Statistics
+
 ```{r, echo = FALSE, message = FALSE}
 head(fertility_df) |>
   select(Year, TFR, TLB, TLB_s) |>
-  knitr::kable(caption = "Table 1: The first 6 rows of the dataset for display")
+  knitr::kable(caption = "The first 6 rows of the dataset for display")
 ```
-
-#### Summary Statistics
 
 -   Total Fertility rate on average is 1.52 with with a standard deviation of 1.23. This is relatively high compared to the mean. So fertility rate increases increases and decreases per year by this amount.
 
@@ -56,7 +58,7 @@ fertility_df |>
                      "Standard Deviation" = sd,
                      quantile)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 2: Summary statistics of the Total Fertility Rate")
+  knitr::kable(caption = "Summary statistics of the Total Fertility Rate")
 ```
 
 -   On average the total live births per year is 4.41 or 44,100 with a standard deviation of 0.681. This standard deviation is lower than the mean. Total live births each year are increased and decreased by this amount or by 6,810.
@@ -69,12 +71,14 @@ fertility_df |>
                      "Standard Deviation" = sd,
                      quantile)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 4: Sumamry statistics of the scaled Total Live Births")
+  knitr::kable(caption = "Sumamry statistics of the scaled Scaled Total Live Births")
 ```
+
+\newpage
 
 #### Box-plots
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Box-plots of Total Fertility Rate (TFR) and Scaled Total Live Births (TLB_s)"}
 fertility_df |>
   ggplot(aes(x = TFR, fill = after_stat(width))) +
   geom_boxplot() +
@@ -92,15 +96,17 @@ fertility_df |>
 b1 / b2
 ```
 
-The box-plot Total Fertility Rate has no skewed with 10 outliers. Suggesting overall lower fertility rate is recorded. 50% of recorded fertility rates lies roughly between 1.5 and 2. The lowest fertility rate is 0.87. Maximum fertility rate is 5.76 as all seen in Table 1. This is maximum is an outlier and supported by the box-plot. In addition about half the recorded fertility rates lie below or above the median; 1.62. This is also seen on fertility rate box-plot.
+The box-plot Total Fertility Rate has no skewed with 10 outliers. Suggesting overall lower fertility rate is recorded. 50% of recorded fertility rates lies roughly between 1.5 and 2. The lowest fertility rate is 0.87. Maximum fertility rate is 5.76 as all seen in Table 2. This is maximum is an outlier and supported by the box-plot. In addition about half the recorded fertility rates lie below or above the median; 1.62. This is also seen on fertility rate box-plot.
 
-Total Live Births box-plot is right skewed with no outliers. 50% of recorded total live births lie roughly between 4 and the low 5s. The recorded median is 4.24 seen in Table 2. Half lie below and above this median. The maximums and minimums here aren't outliers but are recorded as 6.18 and 3 respectively in Table 2. Essentially at a one point in time, the maximum total live births was 61,800 and the minimum was 30,000.
+Total Live Births box-plot is right skewed with no outliers. 50% of recorded total live births lie roughly between 4 and the low 5s. The recorded median is 4.24 seen in Table 3. Half lie below and above this median. The maximums and minimums here aren't outliers but are recorded as 6.18 and 3 respectively in Table 2. Essentially at a one point in time, the maximum total live births was 61,800 and the minimum was 30,000.
+
+\newpage
 
 #### Histograms
 
 Histogram of the Total Fertility Rate is unimodal right-skewed. A majority of recorded data leans towards the lower end of fertility rate. As reflected by the box-plot there are also clusters of outliers here beyond the TFR of 3.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Histogram of Total Ferility Rate (TFR)"}
 fertility_df |>
   ggplot(aes(x = TFR, fill = after_stat(count))) +
   geom_histogram() + 
@@ -110,9 +116,9 @@ fertility_df |>
   theme(legend.position = "none")
 ```
 
-The histogram ofTotal Live Births displays a bimodal distribution. There's two main peaks are 4 and 5. Additionally there no data in the centre between 4 and 5 separating the two peaks.
+The histogram of Total Live Births displays a bimodal distribution. There's two main peaks are 4 and 5. Additionally there no data in the centre between 4 and 5 separating the two peaks.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Histogram of scaled Total Live Births (TLB_s)"}
 fertility_df |>
   ggplot(aes(x = TLB_s, fill = after_stat(count))) +
   geom_histogram() +
@@ -122,16 +128,18 @@ fertility_df |>
   theme(legend.position = "none")
 ```
 
+\newpage
+
 #### Time Plots and Correlograms
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Time plot and Correlograms of Total Fertility Rate (TFR)"}
 fertility_df |>
   gg_tsdisplay(TFR, plot_type = 'partial')
 ```
 
 The time series for total fertility rate, it's time plot has a decreasing trend. As it's annual data there is no seasonality. It's correlogram has a gradual decay. Past lag 10 the ACF is no longer significant. The partial correlogram cuts off sharply after lag 1. No more lags after have a significant PACF. Overall this suggests an autoregressive model could be considered. However, because of it's non-stationarity and decreasing trend this isn't a definitive conclusion. Since there's a possibility of the trend influencing these correlogram. Transformation and differencing should be considered to ensure stationarity.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Time Series Decomposition of Total Fertility Rate (TFR)"}
 fertility_df |>
   model(stl = STL(TFR)) |>
   components() |>
@@ -140,14 +148,14 @@ fertility_df |>
 
 The time decomposition of the total fertility rate further supports that it's a decreasing trend with no stationarity. The fluctuations seen in the remainder explains for the peaks and troughs seen in the time series. What these fluctuations could be is a potential avenue for further exploration. Additionally in the trend, it's clearly seen that it could be of an exponential decrease. So a logarithmic transform could be a consideration.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Time plot and Correlograms of scaled Total Fertility Rate (TLB)"}
 fertility_df |>
   gg_tsdisplay(TLB_s, plot_type = 'partial')
 ```
 
 Total Live Births, it's time plot displays a similar non-seasonal decreasing trend. In addition, both time plots display a peak increase in their respective variables, for the periods between the 1980s and 2000s. This could be an indication of socio-economical features not present in this data that could worth investigating. The correlogram features an ACF that decays gradually and is not significant after lag 6. It's partial correlogram, a significant peak in it's PACF and cuts off afterwards. Suggesting a similar consideration of autoregressive and a similar conclusion that the trend is influencing these.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "Time decomposition of scaled Total Live Births"}
 fertility_df |>
   model(stl = STL(TLB_s)) |>
   components() |>
@@ -158,6 +166,8 @@ The Total Live Births decomposition shows that the fluctuations seen in the time
 
 Overall there's a correlation between fertility rate and live births. It's relationship could be worth considering if one is an significant indicator of the other.
 
+\newpage
+
 #### Modelling
 
 ```{r, echo = FALSE, message = FALSE}
@@ -165,7 +175,7 @@ fertility_df |>
   filter(Year <= 2012) -> train_df
 ```
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.cap= "TFR vs it's logarithmic transformed. Marginal reduction in it's variation"}
 fertility_df |>
   autoplot(log(TFR)) -> p1
 
@@ -177,9 +187,9 @@ p1 / p2
 
 A logarithmic transformation was considered in an attempt to make the Total Fertility Rate stationary and minimise it's variation. However as seen here, there is questionable marginal affect compared to the original data. So a logarithmic transformation is not in the final candidate models.
 
-A more formal way was conducted to determine if the time series for Total Fertility rate and Total Live Births are stationary, the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) Test. The assumed null hypothesis was that the time series were stationary and reject this if it's p-value was less than 0.05. Additionally this test will also directly indicate how many differences is required to make it stationary. Hence a difference of order 2 is required as seen in Table 5.
+A more formal way was conducted to determine if the time series for Total Fertility rate and Total Live Births are stationary, the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) Test. The assumed null hypothesis was that the time series were stationary and reject this if it's p-value was less than 0.05. Additionally this test will also directly indicate how many differences is required to make it stationary. Hence a difference of order 2 is required as seen in Table 4.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 train_df |>
   features(TFR, list(
     unitroot_kpss,
@@ -189,7 +199,7 @@ train_df |>
          "p-value" = kpss_pvalue,
          "Difference" = ndiffs) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 5: The Unit Root Tests for Total Fertility Rate")
+  knitr::kable(caption = "The Unit Root Tests for Total Fertility Rate")
 
 ```
 
@@ -197,12 +207,12 @@ The twice differenced time series now meets stationary assumptions. However it d
 
 Therefore can be concluded a candidate model for Total Fertility Rate could be an ARIMA(0,2,1) model as it's now also differenced.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.cap= "Twice differenced of the Total Fertility Rate (TFR)"}
 train_df |>
   gg_tsdisplay(difference(TFR, 2), plot_type = 'partial')
 ```
 
-The same formal test for stationarity, the KPSS was conducted for the Total Live Births time series seen in Table 6. A difference of one was taken to ensure stationarity.
+The same formal test for stationarity, the KPSS was conducted for the Total Live Births time series seen in Table 5. A difference of one was taken to ensure stationarity.
 
 ```{r, echo = FALSE, message = FALSE}
 train_df |>
@@ -214,7 +224,7 @@ train_df |>
          "p-value" = kpss_pvalue,
          "Difference" = ndiffs) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 6: The Unit Root Tests for Total Live Births")
+  knitr::kable(caption = "The Unit Root Tests for Total Live Births")
 
 ```
 
@@ -222,7 +232,7 @@ The time plot is now stationary however it's correlograms indicate no clear patt
 
 For the Total Live Births, two models will be considered as candidate and for later analysis and validation. These are ARIMA(1,1,0) to compensate for the initial autoregressive indications seen earlier, and ARIMA(0,1,0) for the possible random walk.
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.cap= "Once differenced scaled Total Live Births (TLB)"}
 train_df |>
   gg_tsdisplay(difference(TLB_s, 1), plot_type = 'partial')
 ```
@@ -239,7 +249,7 @@ For Total Fertility Rate an ARIMA(1,2,0) was fitted and for Total Live Births tw
 
 -   ARIMA(1,1,0): $\Delta\text{TLB}_t=-0.0692+\epsilon_t$
 
-The p-values from Table 7 for the two Total Live Birth Models are greater than 0.05, so they're not statistically significant models. Alternative models should be considered and compared with these candidate models to see which is better at forecasting.
+The p-values from Table 6 for the two Total Live Birth Models are greater than 0.05, so they're not statistically significant models. Alternative models should be considered and compared with these candidate models to see which is better at forecasting.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 fit_TFR <-
@@ -268,13 +278,15 @@ bind_rows(
          "Statistics" = statistic,
          "p-value" = p.value) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
-  knitr::kable(caption = "Table 7: Model Table for TFR and TLB")
+  knitr::kable(caption = "Model Table for TFR and TLB")
  
 ```
 
 Models used for simple forecasting methods can be considered as as benchmarks to evaluate if these candidate models are suitable for forecasting future data. These methods are the mean, naive, and drift methods. The BIC and AICc can be considered as well to determine the order of ARIMA models. Comparing these starting models with an optimised one can be useful. As good models tend to have minimised AIC, AICc or BIC.
 
 Additionally their residuals and their fitted of these and optimised models can be compared and evaluated. Including residual diagnostics ranging from histograms correlograms, and Portmanteau tests (i.e. Box-Piece or Ljung-Box). Further checks of stationarity with an optimised model for Total Live Births for example can result in better forecasting compared to the candidate models.
+
+\newpage
 
 ### Research Questions
 
@@ -292,6 +304,40 @@ Additionally their residuals and their fitted of these and optimised models can 
 \newpage
 
 ### Statistical Appendix
+
+GitHub: <https://github.com/Simon-a1740071/MATHS-X313-Report>
+
+**ARIMA Model**
+
+This is a combination of autoregression and moving average, where I in ARIMA is integration as in the reverse of differencing. A typical full ARIMA(p,d,q) model is written as:
+
+$$
+y'_t = c + \sum^p_{i=1}\phi_iy'_{t-i} + \sum^q_{i=1}\theta_i\epsilon_{t-i}
+$$
+
+-   $y'_t$ is the differenced series
+
+**Autocorrelation**
+
+For lag $k$, the ACF is the measure between the relationship between $y_t$ and $y_{t-k}$:
+
+$$
+\rho(k) = r_k = \frac{\sum^T_{t=k+1}(y_t - \bar{y})(y_{t-k}-\bar{y})}{\sum^T_{t=1}(y_t - \bar{y})^2}
+$$
+
+**Partial Autocorrelation**
+
+The theoretical partial autocorrelation function of a stationary time series is calculated using the Durbin-Levinson Algorithm
+
+$$
+\phi_{n,n} = \frac{\rho(n) - \sum^{n-1}_{k=1}\phi_{n-1,k}\rho(n-k)}{1 - \sum^{n-1}_{k=1}\phi_{n-1,k} \rho(k)}
+$$
+
+Where
+
+-   $\phi_{n,k}= \phi_{n-1,k} - \phi_{n,n}\phi_{n-1,n-k}$ for $k\in[1,n-1]$
+
+-   $\rho(.)$ is the autocorrelation function
 
 \newpage
 
