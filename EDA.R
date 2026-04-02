@@ -70,6 +70,15 @@ train |>
 train |>
   autoplot(log(TFR))
 
+#### Log transform and differenced
+
+train |>
+  autoplot(log(TFR) |>
+             difference(2))
+
+train |> autoplot(TFR |>
+                    difference(2))
+
 train |>
   autoplot(sqrt(TFR))
 
@@ -115,6 +124,9 @@ train |>
              difference(2), unitroot_ndiffs)
 
 train |>
+  gg_tsdisplay(log(TFR) |>
+             difference(2), plot_type = 'partial')
+train |>
   gg_tsdisplay(difference(TFR, 2), plot_type = 'partial')
 
 
@@ -136,7 +148,6 @@ train |>
   PACF(difference(TFR, 2) |>
          difference(1)) |>
   autoplot() -> pl2 #lags 2, 4, 6, 8, 9, 11, 12, 15 significant. 
-
 
 pl0 / pl1 / pl2
 #maybe over fitting
@@ -224,7 +235,12 @@ fit_TFR <-
   select(Year, TFR) |>
   model(ARIMA(TFR ~ pdq(0,2,1)))
 
+fit_TFRl <-
+  train |>
+  model(ARIMA(log(TFR) ~ pdq(1,2,1)))
+
 report(fit_TFR)
+report(fit_TFRl)
 
 fit_TLB <-
   train |>
@@ -237,6 +253,7 @@ fit_TLB2 <-
   mutate(TLB_S = TLB / 1e4) |>
   select(Year, TLB_S) |>
   model(ARIMA(TLB_S ~ pdq(1,1,0)))
+
 
 report(fit_TLB)
 report(fit_TLB2) #no clear pattern favouring a random walk,
