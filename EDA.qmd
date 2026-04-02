@@ -23,9 +23,6 @@ The dataset has been provided by the Singapore Department of Statistics. It prim
 
     -   The EDA will be concerned with the entire period of 1960 to 2025. However for modelling and forecasting, it pertains to the periods 1960 to 2012, and 2013 to 2024 respectively.
 
-```{=html}
-<!-- -->
-```
 -   `TLF`: Total Fertility Rate
 
     -   This refers to the average number of live-births each female would have during her reproductive years, subjected to prevailing age-specific fertility rates in the population in the given year.
@@ -36,7 +33,7 @@ The dataset has been provided by the Singapore Department of Statistics. It prim
 
     -   Data is concerned with all live births within Singapore and its territorial waters as registered by the Singaporean government at the year of birth.
 
--    `TLB_s`: Total Live Births scaled
+-   `TLB_s`: Total Live Births scaled
 
     -   This is an additional variable introduced. It is a down scaling of the live births data that will be used for ease of analysis.
 
@@ -50,6 +47,8 @@ head(fertility_df) |>
 
 #### Summary Statistics
 
+-   Total Fertility rate on average is 1.52 with with a standard deviation of 1.23. This is relatively high compared to the mean. So fertility rate increases increases and decreases per year by this amount.
+
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   features(TFR, list(Mean = mean, 
@@ -59,6 +58,8 @@ fertility_df |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(caption = "Table 2: Summary statistics of the Total Fertility Rate")
 ```
+
+-   On average the total live births per year is 4.41 or 44,100 with a standard deviation of 0.681. This standard deviation is lower than the mean. Total live births each year are increased and decreased by this amount or by 6,810.
 
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
@@ -73,7 +74,7 @@ fertility_df |>
 
 #### Box-plots
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   ggplot(aes(x = TFR, fill = after_stat(width))) +
   geom_boxplot() +
@@ -91,9 +92,15 @@ fertility_df |>
 b1 / b2
 ```
 
+The box-plot Total Fertility Rate has no skewed with 10 outliers. Suggesting overall lower fertility rate is recorded. 50% of recorded fertility rates lies roughly between 1.5 and 2. The lowest fertility rate is 0.87. Maximum fertility rate is 5.76 as all seen in Table 1. This is maximum is an outlier and supported by the box-plot. In addition about half the recorded fertility rates lie below or above the median; 1.62. This is also seen on fertility rate box-plot.
+
+Total Live Births box-plot is right skewed with no outliers. 50% of recorded total live births lie roughly between 4 and the low 5s. The recorded median is 4.24 seen in Table 2. Half lie below and above this median. The maximums and minimums here aren't outliers but are recorded as 6.18 and 3 respectively in Table 2. Essentially at a one point in time, the maximum total live births was 61,800 and the minimum was 30,000.
+
 #### Histograms
 
-```{r}
+Histogram of the Total Fertility Rate is unimodal right-skewed. A majority of recorded data leans towards the lower end of fertility rate. As reflected by the box-plot there are also clusters of outliers here beyond the TFR of 3.
+
+```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   ggplot(aes(x = TFR, fill = after_stat(count))) +
   geom_histogram() + 
@@ -103,7 +110,9 @@ fertility_df |>
   theme(legend.position = "none")
 ```
 
-```{r}
+The histogram ofTotal Live Births displays a bimodal distribution. There's two main peaks are 4 and 5. Additionally there no data in the centre between 4 and 5 separating the two peaks.
+
+```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   ggplot(aes(x = TLB_s, fill = after_stat(count))) +
   geom_histogram() +
@@ -113,7 +122,7 @@ fertility_df |>
   theme(legend.position = "none")
 ```
 
-#### Time Plots and Correlograms 
+#### Time Plots and Correlograms
 
 ```{r, echo = FALSE, message = FALSE}
 fertility_df |>
@@ -146,7 +155,7 @@ fertility_df |>
   filter(Year <= 2012) -> train_df
 ```
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 fertility_df |>
   autoplot(log(TFR)) -> p1
 
@@ -186,7 +195,7 @@ train_df |>
 
 #### Fitting
 
-```{r,  echo = FALSE, message = FALSE, warning = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 fit_TFR <-
   train_df |>
   model(TFR_021 = ARIMA(TFR ~ pdq(0,2,1)))
@@ -211,13 +220,13 @@ bind_rows(
 
 ### Research Questions
 
+\newpage
+
 ### Statistical Appendix
+
+\newpage
 
 ### References
 
 -   Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg. <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
-
-```{=html}
-<!-- -->
-```
 -   Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder. <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
