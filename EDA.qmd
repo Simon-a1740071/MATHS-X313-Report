@@ -104,8 +104,6 @@ Total Live Births box-plot is right skewed with no outliers. 50% of recorded tot
 
 #### Histograms
 
-Histogram of the Total Fertility Rate is unimodal right-skewed. A majority of recorded data leans towards the lower end of fertility rate. As reflected by the box-plot there are also clusters of outliers here beyond the TFR of 3.
-
 ```{r, echo = FALSE, message = FALSE, fig.cap= "Histogram of Total Ferility Rate (TFR)"}
 fertility_df |>
   ggplot(aes(x = TFR, fill = after_stat(count))) +
@@ -116,7 +114,7 @@ fertility_df |>
   theme(legend.position = "none")
 ```
 
-The histogram of Total Live Births displays a bimodal distribution. There's two main peaks are 4 and 5. Additionally there no data in the centre between 4 and 5 separating the two peaks.
+Histogram of the Total Fertility Rate is unimodal right-skewed. A majority of recorded data leans towards the lower end of fertility rate. As reflected by the box-plot there are also clusters of outliers here beyond the TFR of 3.
 
 ```{r, echo = FALSE, message = FALSE, fig.cap= "Histogram of scaled Total Live Births (TLB_s)"}
 fertility_df |>
@@ -127,6 +125,8 @@ fertility_df |>
   theme_light() +
   theme(legend.position = "none")
 ```
+
+The histogram of Total Live Births displays a bimodal distribution. There's two main peaks are 4 and 5. Additionally there no data in the centre between 4 and 5 separating the two peaks.
 
 \newpage
 
@@ -187,8 +187,6 @@ p1 / p2
 
 A logarithmic transformation was considered in an attempt to make the Total Fertility Rate stationary and minimise it's variation. However as seen here, there is questionable marginal affect compared to the original data. So a logarithmic transformation is not in the final candidate models.
 
-A more formal way was conducted to determine if the time series for Total Fertility rate and Total Live Births are stationary, the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) Test. The assumed null hypothesis was that the time series were stationary and reject this if it's p-value was less than 0.05. Additionally this test will also directly indicate how many differences is required to make it stationary. Hence a difference of order 2 is required as seen in Table 4.
-
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 train_df |>
   features(TFR, list(
@@ -203,16 +201,16 @@ train_df |>
 
 ```
 
-The twice differenced time series now meets stationary assumptions. However it displays a minor increase trend between 1960 and 1980. Further differencing would mean overfitting. Hence alternative models may be considered if the candidate model isn't sufficient. The correlogram now has an ACF that gradually decays as supported by it's original non-difference time series. The partial now has significant lags past 1, notably lags 3, 5, and a negative lag 12. There's no clean cut off as seen initially. Again suggesting an AR model.
-
-Therefore can be concluded a candidate model for Total Fertility Rate could be an ARIMA(0,2,1) model as it's now also differenced.
+A more formal way was conducted to determine if the time series for Total Fertility rate and Total Live Births are stationary, the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) Test. The assumed null hypothesis was that the time series were stationary and reject this if it's p-value was less than 0.05. Additionally this test will also directly indicate how many differences is required to make it stationary. Hence a difference of order 2 is required as seen in Table 4.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.cap= "Twice differenced of the Total Fertility Rate (TFR)"}
 train_df |>
   gg_tsdisplay(difference(TFR, 2), plot_type = 'partial')
 ```
 
-The same formal test for stationarity, the KPSS was conducted for the Total Live Births time series seen in Table 5. A difference of one was taken to ensure stationarity.
+The twice differenced time series now meets stationary assumptions. However it displays a minor increase trend between 1960 and 1980. Further differencing would mean overfitting. Hence alternative models may be considered if the candidate model isn't sufficient. The correlogram now has an ACF that gradually decays as supported by it's original non-difference time series. The partial now has significant lags past 1, notably lags 3, 5, and a negative lag 12. There's no clean cut off as seen initially. Again suggesting an AR model.
+
+Therefore can be concluded a candidate model for Total Fertility Rate could be an ARIMA(0,2,1) model as it's now also differenced.
 
 ```{r, echo = FALSE, message = FALSE}
 train_df |>
@@ -228,28 +226,18 @@ train_df |>
 
 ```
 
-The time plot is now stationary however it's correlograms indicate no clear pattern to suggest either an AR or an MA model. A significant peak at lag 12 and similar negative lags at 11 and 13. This could be a random walk as it displays long periods of apparent trends up or down. Sudden and unpredictable changes in changes additionally. An indication of a stochastic trend.
-
-For the Total Live Births, two models will be considered as candidate and for later analysis and validation. These are ARIMA(1,1,0) to compensate for the initial autoregressive indications seen earlier, and ARIMA(0,1,0) for the possible random walk.
+The same formal test for stationarity, the KPSS was conducted for the Total Live Births time series seen in Table 5. A difference of one was taken to ensure stationarity.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.cap= "Once differenced scaled Total Live Births (TLB)"}
 train_df |>
   gg_tsdisplay(difference(TLB_s, 1), plot_type = 'partial')
 ```
 
+The time plot is now stationary however it's correlograms indicate no clear pattern to suggest either an AR or an MA model. A significant peak at lag 12 and similar negative lags at 11 and 13. This could be a random walk as it displays long periods of apparent trends up or down. Sudden and unpredictable changes in changes additionally. An indication of a stochastic trend.
+
+For the Total Live Births, two models will be considered as candidate and for later analysis and validation. These are ARIMA(1,1,0) to compensate for the initial autoregressive indications seen earlier, and ARIMA(0,1,0) for the possible random walk.
+
 #### Fitting
-
-For Total Fertility Rate an ARIMA(1,2,0) was fitted and for Total Live Births two models were fitted. An ARIMA(0,1,0) and ARIMA(1,1,0) seen in Table 7. From the table the models for fertility rate and live births are:
-
--   ARIMA(1,2,0): $\Delta^2\text{TFR}_t = -0.384\Delta^2\text{TFR}_{t-1} + \epsilon_t$
-
-    -   Where $\Delta$ is the difference, back-shift operator.
-
--   The random walk, ARIMA(0,1,0): $\Delta\text{TLB}_t = -0.0368 + \epsilon_t$
-
--   ARIMA(1,1,0): $\Delta\text{TLB}_t=-0.0692+\epsilon_t$
-
-The p-values from Table 6 for the two Total Live Birth Models are greater than 0.05, so they're not statistically significant models. Alternative models should be considered and compared with these candidate models to see which is better at forecasting.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 fit_TFR <-
@@ -282,6 +270,18 @@ bind_rows(
  
 ```
 
+For Total Fertility Rate an ARIMA(1,2,0) was fitted and for Total Live Births two models were fitted. An ARIMA(0,1,0) and ARIMA(1,1,0) seen in Table 7. From the table the models for fertility rate and live births are:
+
+-   ARIMA(1,2,0): $\Delta^2\text{TFR}_t = -0.384\Delta^2\text{TFR}_{t-1} + \epsilon_t$
+
+    -   Where $\Delta$ is the difference, back-shift operator.
+
+-   The random walk, ARIMA(0,1,0): $\Delta\text{TLB}_t = -0.0368 + \epsilon_t$
+
+-   ARIMA(1,1,0): $\Delta\text{TLB}_t=-0.0692+\epsilon_t$
+
+The p-values from Table 6 for the two Total Live Birth Models are greater than 0.05, so they're not statistically significant models. Alternative models should be considered and compared with these candidate models to see which is better at forecasting.
+
 Models used for simple forecasting methods can be considered as as benchmarks to evaluate if these candidate models are suitable for forecasting future data. These methods are the mean, naive, and drift methods. The BIC and AICc can be considered as well to determine the order of ARIMA models. Comparing these starting models with an optimised one can be useful. As good models tend to have minimised AIC, AICc or BIC.
 
 Additionally their residuals and their fitted of these and optimised models can be compared and evaluated. Including residual diagnostics ranging from histograms correlograms, and Portmanteau tests (i.e. Box-Piece or Ljung-Box). Further checks of stationarity with an optimised model for Total Live Births for example can result in better forecasting compared to the candidate models.
@@ -292,7 +292,7 @@ Additionally their residuals and their fitted of these and optimised models can 
 
 1.  How viable are these candidate models for forecasting the periods form 2013 to 2024 compared to more suitable optimised models?
 2.  How much can an optimised model explain the irregularities and fluctuations within both time series?
-3.  Given historical context, through industrialisation and government interventionist policies, Singapore saw rapid economic growth between the 1950s and 1990s. Becoming one of Four Asian Tigers (亞洲四小龍) predominantly as a financial hub. Additionally COVID-19 saw economic down turns, quarantines and border closures. How much of these fluctuations seen in these time series (notably the increases in the 20th century seen in the data) can be explained by these periods of significant progress and upheaval?
+3.  Given historical context, through industrialisation and government interventionist policies, Singapore saw rapid economic growth between the 1950s and 1990s. Becoming one of Four Asian Tigers predominantly as a financial hub. Additionally COVID-19 saw economic down turns, quarantines and border closures. How much of these fluctuations seen in these time series (notably the increases in the 20th century seen in the data) can be explained by these periods of significant progress and upheaval?
     -   Main limitation of this is the current data. There isn't enough, a large enough variety such as GDP, total population growth, and other metrics concerning socio-economic factors to further investigate.
 
     -   Additionally it may be beyond the scope of this analysis, as is eventually is a rabbit hole of other questions encapsulating various other fields:
@@ -305,7 +305,7 @@ Additionally their residuals and their fitted of these and optimised models can 
 
 ### Statistical Appendix
 
-GitHub: <https://github.com/Simon-a1740071/MATHS-X313-Report>
+GitHub for the data cleaning and EDA coding: <https://github.com/Simon-a1740071/MATHS-X313-Report>
 
 **ARIMA Model**
 
