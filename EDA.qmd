@@ -6,13 +6,145 @@ editor: visual
 
 ### Data
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#Libraries and the Dataset
+pacman::p_load(fpp3)
+
+read.csv(
+  here::here("AnnualFertilityData_Cleaned.csv"), check.names = FALSE
+) |>
+  tsibble(index = Year) |>
+  mutate(TLB_s = TLB / 1e4) -> fertility_df
+```
+
+```{r, echo = FALSE, message = FALSE}
+head(fertility_df) |>
+  select(Year, TFR, TLB, TLB_s) |>
+  knitr::kable(caption = "Table 1:")
+```
+
 #### Summary Statistics
 
-#### Time Plots
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  features(TFR, list(Mean = mean, 
+                     Variance = var,
+                     "Standard Deviation" = sd,
+                     quantile)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(caption = "Table 2: ")
+```
 
-#### Correlograms
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  mutate(TLB_s = TLB / 1e4) |>
+  features(TLB_s, list(Mean = mean,
+                     Variance = var,
+                     "Standard Deviation" = sd,
+                     quantile)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(caption = "Table 4: ")
+```
+
+#### Histograms
+
+```{r}
+fertility_df |>
+  ggplot(aes(x = TFR)) +
+  geom_histogram(bins = 30) 
+```
+
+```{r}
+fertility_df |>
+  ggplot(aes(x = TLB_s)) +
+  geom_histogram(bins = 30) 
+```
+
+#### Time Plots and Correlograms 
+
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  gg_tsdisplay(TFR, plot_type = 'partial')
+```
+
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  model(stl = STL(TFR)) |>
+  components() |>
+  autoplot()
+```
+
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  gg_tsdisplay(TLB_s, plot_type = 'partial')
+```
+
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  model(stl = STL(TLB_s)) |>
+  components() |>
+  autoplot()
+```
 
 #### Modelling
+
+```{r, echo = FALSE, message = FALSE}
+fertility_df |>
+  filter(Year <= 2012) -> train_df
+```
+
+```{r, echo = FALSE, message = FALSE}
+train_df |>
+  features(TFR, list(
+    unitroot_kpss,
+    unitroot_ndiffs)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(caption = "Table 5: ")
+```
+
+```{r, echo = FALSE, message = FALSE}
+train_df |>
+  gg_tsdisplay(difference(TFR, 2), plot_type = 'partial')
+```
+
+```{r, echo = FALSE, message = FALSE}
+train_df |>
+  features(TLB_s, list(
+    unitroot_kpss,
+    unitroot_ndiffs)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(caption = "Table 6: ")
+```
+
+```{r, echo = FALSE, message = FALSE}
+train_df |>
+  gg_tsdisplay(difference(TLB_s, 1), plot_type = 'partial')
+```
+
+#### Fitting
+
+```{r,  echo = FALSE, message = FALSE, warning = FALSE}
+fit_TFR <-
+  train_df |>
+  model(TFR_021 = ARIMA(TFR ~ pdq(0,2,1)))
+
+fit_TLB <-
+  train_df |>
+  model(
+    TLB_010 = ARIMA(TLB_s ~ 1 + pdq(0,1,0)),
+    TLB_110 = ARIMA(TLB_s ~ pdq(1,1,0))
+  )
+```
+
+```{r, echo = FALSE, message = FALSE}
+bind_rows(
+  fit_TFR |>
+  tidy(),
+  fit_TLB |>
+  tidy()) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(caption = "Table 7: ")
+```
 
 ### Research Questions
 
