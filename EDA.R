@@ -34,7 +34,6 @@ df |>
                      sd = sd,
                      quantile))
 #time plot
-
 df |>
   autoplot(TFR, colour = "orange") +
   labs( y = "Total Fertility Rate", x = "Year") -> a1
@@ -44,6 +43,19 @@ df |>
   labs(y = "Total Live Births", x = "Year") -> a2
 
 a1 / a2
+
+# Time decomposition
+df |>
+  model(stl = STL(TFR)) |>
+  components() |>
+  autoplot()
+
+df |>
+  model(stl = STL(TLB)) |>
+  components() |>
+  autoplot()
+
+
 #TFR
 #decreasing trend
 #non-stationary
@@ -76,8 +88,20 @@ train |>
              difference(2), unitroot_kpss) # <0.05 reject H0: stationary
 
 train |>
+  autoplot(TFR |>
+             difference(2)) 
+#ACF: tails off
+#PACF:: significant lags 1, 3, 5, 13. seems to suggest an AR model. 
+#Large significant spike at 1, then tapers off after it. Maybe an AR(1) model
+#ARIMA(0,2,1)
+
+train |>
   features(TFR |>
              difference(2), unitroot_ndiffs)
+
+train |>
+  gg_tsdisplay(difference(TFR, 2), plot_type = 'partial')
+
 
 train |>
   autoplot(difference(TFR, 2) |>
@@ -112,6 +136,16 @@ pl0 / pl1 / pl2
 
 train |>
   autoplot(TLB/10000) 
+
+train |>
+  mutate(TLB_S = TLB / 1e4) |>
+  gg_tsdisplay(TLB_S, plot_type = 'partial')
+#significant spike at lag 1 pacf, decays in acf, maybe an AR(1) ARIMA(1,1,0)
+
+train |>
+  mutate(TLB_S = TLB / 1e4) |>
+  gg_tsdisplay(difference(TLB_S, 1), plot_type = 'partial')
+#significant spike at 12, no clear indication of AR or MA
 
 train |>
   ACF(TLB/10000) |>
@@ -160,9 +194,36 @@ pl0a / pl1a / pl2a
 
 #acf no clear pattern suggesting MA
 #pacf no clear pattern suggesting AR
+#possible random walk
 #may consider an arima model as only differenced ARIMA(0,1,0)
 
+#Canidate models
+#TFR: ARIMA(0,3,1) overfitting is a concern may not use this
+#TFR: ARIMA(0,2,1)
+#TLB: ARIMA(0,1,0)
 
+fit_TFR <-
+  train |>
+  select(Year, TFR) |>
+  model(ARIMA(TFR ~ pdq(0,2,1)))
+
+report(fit_TFR)
+
+fit_TLB <-
+  train |>
+  mutate(TLB_S = TLB / 1e4) |>
+  select(Year, TLB_S) |>
+  model(ARIMA(TLB_S ~ 1 + pdq(0,1,0)))
+
+fit_TLB2 <-
+  train |>
+  mutate(TLB_S = TLB / 1e4) |>
+  select(Year, TLB_S) |>
+  model(ARIMA(TLB_S ~ pdq(1,1,0)))
+
+report(fit_TLB)
+report(fit_TLB2) #no clear pattern favouring a random walk,
+# arima(1,1,0) seems more likely as a starting model
 
 # Age groups
 df |>
@@ -246,14 +307,4 @@ df |>
 df |>
   features(TLB, feat_pacf)
 
-# Time decomposition
-df |>
-  model(stl = STL(TFR)) |>
-  components() |>
-  autoplot()
-
-df |>
-  model(stl = STL(TLB)) |>
-  components() |>
-  autoplot()
 
