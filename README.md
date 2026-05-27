@@ -9,6 +9,14 @@ This repo will cover the time period: 24/03/2026 - 08/06/2026. During then I wil
 
 If I ever add additional comments here, do note it'll have the date listed above it like here.
 
+__26/05/2026:__
+
+Hi, the three files:
+* `EDA.qmd`
+* `EDA.R`
+* `EDA.pdf`
+Will not be worked on further and have received a final update to them. I'm just going to make another R script, quarto for EDA and modelling. Then upload an Html file (not for marking purposes) for the EDA. This EDA will have pretty much the same analysis and discussion, but better. 
+
 ## Contents
 
 * Will contain the following: 
@@ -27,13 +35,15 @@ If I ever add additional comments here, do note it'll have the date listed above
 
   * Mainly looking at Total Live Births (TLB) and Total Fertility Rate (TFR) from 1960 to 2024. 
 
-  * However other variables maybe worth looking at. See the PDF document for the full EDA.
+  * However other variables maybe worth looking at. See the PDF or the final HTLM document for the full EDA.
 
 * Should have at least one potential time series model for the TLB and TFR for the periods that span 1960 to 2012. 
 
   * Will be discussing how best to assess which models are viable for forecasting from the periods 2013 to 2024. 
 
 ## Statistical Report
+
+__Research Question:__ 
 
 ## References
 
