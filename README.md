@@ -15,6 +15,7 @@ Hi, the three files:
 * `EDA.qmd`
 * `EDA.R`
 * `EDA.pdf`
+
 Will not be worked on further and have received a final update to them. I'm just going to make another R script, quarto for EDA and modelling. Then upload an Html file (not for marking purposes) for the EDA. This EDA will have pretty much the same analysis and discussion, but better. 
 
 ## Contents
