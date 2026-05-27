@@ -104,7 +104,7 @@ train |>
 #PACF: significant spikes at lag 1, 4. None beyond lag 4. Also has a damped sine wave manner. 
 #ACF: Dies out in a sine wave like manner. Significant spikes at 13, none beyond it
 #differenced once, d = 1
-#possible model ARIMA models: (0,1,4), or (12,1,0)
+#possible model ARIMA models: (0,1,4), or (13,1,0)
 
 
 ### TLB
