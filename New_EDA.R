@@ -23,7 +23,7 @@ fert_df |>
   mutate(Zodiac = zodiac[((Year - 1900) %% 12 + 1)]) |>
   relocate(Zodiac, .after = Year) -> fert_df
 
-## Time plot TFR
+## Time plot TFR TLB
 
 fert_df |>
   ggplot(aes(x = Year, y = TFR, label = Year)) +
@@ -35,6 +35,19 @@ fert_df |>
 
 fert_df |>
   ggplot(aes(x = Year, y = TFR, label = Year, )) +
+  geom_line() +
+  geom_point(colour = "gray") +
+  geom_point(aes(colour = Zodiac),
+             data = filter(fert_df, Zodiac %in% c("Dragon", "Tiger"))) +
+  scale_x_continuous(breaks = filter(fert_df, 
+                                     Zodiac %in% c("Dragon", "Tiger"))$Year) +
+  ggsci::scale_color_lancet("lanonc") +
+  theme_light() +
+  theme(axis.text.x = element_text(angle = 50, hjust = 1),
+        legend.position = 'none')
+
+fert_df |>
+  ggplot(aes(x = Year, y = TLB, label = Year, )) +
   geom_line() +
   geom_point(colour = "gray") +
   geom_point(aes(colour = Zodiac),
@@ -65,32 +78,16 @@ train |>
   theme_light()
 
 train |>
-  gg_tsdisplay(TFR,  plot_type = 'partial', lag_max = 36)
-
-train |>
-  model(stl = STL(TFR)) |>
-  components() |>
-  autoplot()
-
-train |>
-  autoplot(difference(log(TFR), 12) |>
-    difference(1))
-
-train |>
-  features(difference(log(TFR), 12) |>
+  features(difference(log(TFR),12) |>
              difference(1), list(unitroot_kpss, 
-                                 unitroot_ndiffs,
-                                 unitroot_nsdiffs))
+                                 unitroot_ndiffs))
 
 train |>
-  features(difference(log(TFR), 12) |>
-             difference(1), list(unitroot_kpss, 
-                                 unitroot_ndiffs,
-                                 unitroot_nsdiffs))
+  gg_tsdisplay(difference(log(TFR), 12) |>
+                 difference(1), plot_type = 'partial', lag_max = 36)
 
 train |>
-  gg_tsdisplay(log(TFR) |>
-                 difference(12) |>
+  gg_tsdisplay(difference(log(TFR), 12) |>
                  difference(1), plot_type = 'partial', lag_max = 36)
 #Seasonal PACF: there is a weak exponential decay at lags 12, 24,36
 #Seasonal ACF: Only significant at lag 12. 
@@ -102,51 +99,9 @@ train |>
 #differenced once, d = 1
 #possible model ARIMA models: (0,1,4), or (13,1,0)
 
-
-train |>
-  autoplot(log(TFR) |> 
-             difference(1))
-train |>
-  features(difference(log(TFR), 1), list(unitroot_kpss, 
-                                 unitroot_ndiffs,
-                                 unitroot_nsdiffs))
-train |>
-  gg_tsdisplay(log(TFR) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
-#looks stationary however unitroot test says otherwise. 
-#ACF: lags 12, 24 indicate an annual cycle cannot really say this is seasonal.
-#However now knowing the context we can consider a SARIMA model
-
-train |>
-  gg_tsdisplay(log(TFR) |>
-                 difference(1) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
-# lag 1 is strongly negative, over differenced, there are still spikes are seasonal lags
-#so maybe need a seasonal differenced
-
-
 ### TLB
-fert_df |>
-  autoplot(TLB)
-
-fert_df |>
-  ggplot(aes(x = Year, y = TLB, label = Year)) +
-  geom_line() +
-  geom_point(colour = "gray") +
-  geom_point(aes(colour = Zodiac),
-             data = filter(fert_df, Zodiac %in% c("Dragon", "Tiger"))) +
-  scale_x_continuous(breaks = filter(fert_df, 
-                                     Zodiac %in% c("Dragon", "Tiger"))$Year) +
-  ggsci::scale_color_lancet("lanonc") +
-  theme_light() +
-  theme(axis.text.x = element_text(angle = 50, hjust = 1),
-        legend.position = 'none')
-
 train |>
-  model(stl = STL(TLB)) |>
-  components() |>
-  autoplot()
-
+  autoplot(TLB)
 
 train |>
   autoplot(log(TLB) |>
@@ -157,20 +112,9 @@ train |>
              difference(1), list(unitroot_kpss, 
                                  unitroot_ndiffs,
                                  unitroot_nsdiffs))
-
 train |>
   gg_tsdisplay(log(TLB) |>
                  difference(1), plot_type = 'partial', lag_max = 36)
-
-train |>
-  gg_tsdisplay(log(TLB) |>
-                 difference(12) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
-
-train |> 
-  PACF(log(TLB) |>
-      difference(1), lag_max = 36) |>
-  autoplot()
 #there's spike at seasonal lags 12 24 for the ACF, PACF only has a lag spike at 12
 #The data is already stationary, may consider a SARIMA with a D = 0 model
 #ACF: spikes at seasonal lag 12, 24. Only 12 is significant. Exponential decays
