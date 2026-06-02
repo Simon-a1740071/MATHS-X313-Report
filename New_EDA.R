@@ -74,30 +74,30 @@ test <-
 
 ### TFR
 train |>
-  autoplot(TFR) +
-  theme_light()
+  autoplot(log(TFR) |>
+             difference(1) |>
+             difference(1))
 
 train |>
-  features(difference(log(TFR),12) |>
+  features(log(TFR) |>
+             difference(1) |>
              difference(1), list(unitroot_kpss, 
                                  unitroot_ndiffs))
 
 train |>
-  gg_tsdisplay(difference(log(TFR), 12) |>
+  gg_tsdisplay(log(TFR) |> 
+                 difference(1) |>
                  difference(1), plot_type = 'partial', lag_max = 36)
 
-train |>
-  gg_tsdisplay(difference(log(TFR), 12) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
-#Seasonal PACF: there is a weak exponential decay at lags 12, 24,36
-#Seasonal ACF: Only significant at lag 12. 
-#Evident seasonality so D = 1
-#(1,1,0)_12
+#Seasonal ACF: there is a weak exponential decay at lags 12, 24,36
+#Seasonal PACF: Only significant at lag 12. 
+#Evident seasonality so D = 0
+#(0,0,1)_12
 
-#PACF: significant spikes at lag 1, 4. None beyond lag 4. Also has a damped sine wave manner. 
-#ACF: Dies out in a sine wave like manner. Significant spikes at 13, none beyond it
+#PACF: significant spikes at lag 1,2,11,15. None beyond lag 15. Also has a damped sine wave manner. 
+#ACF: Signficant spikes at lag 1,11,13, Dies out in a sine wave like manner. 
 #differenced once, d = 1
-#possible model ARIMA models: (0,1,4), or (13,1,0)
+#possible model ARIMA models: (15,1,0), (0,1,13)
 
 ### TLB
 train |>
