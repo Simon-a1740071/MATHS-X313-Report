@@ -159,8 +159,7 @@ train |>
 
 train |>
   features(log(TLB) |>
-             difference(12) |>
-             difference(1), list(unitroot_kpss, 
+             difference(12), list(unitroot_kpss, 
                                  unitroot_ndiffs,
                                  unitroot_nsdiffs))
 
@@ -205,9 +204,8 @@ train |>
 # d = 1 D = 0
 ### Seasonal ACF: only 12, 24 may look significant but it's not. exponential decay
 ### Seasonal PACF: only 12, exponential decay
-###(1,0,0)_12 or (0,0,1)_12
+### (1,0,0)_12 or (0,0,1)_12
 #ACF: last significant 13, damped sine wave
 #PACF: last significant 13, damped sine wave
-### AR(13,1,0) or (0,1,13)
-
-
+### AR(13,1,0) or MA(0,1,13) or MA(0,1,11)
+ 
