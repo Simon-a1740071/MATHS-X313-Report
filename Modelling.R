@@ -24,45 +24,77 @@ fert_df |>
 ##Split into Train and Test
 train <- 
   fert_df |>
-  select(Year, TFR, TLB) |>
+  select(Year, TFR, TLB, Zodiac) |>
   filter(Year <= 2012)
 
 test <-
   fert_df |>
-  select(Year, TFR, TLB) |>
+  select(Year, TFR, TLB, Zodiac) |>
   filter(Year > 2012)  
 
 #Fitting models
 
 ##TFR
-fert_fit <-
+TFR_fit <-
   train |> 
   model(
-    arima1510001 = ARIMA(TFR ~ 1 + pdq(15,1,0) + PDQ(0,0,1)),
-    arima0113001 = ARIMA(TFR ~ 1 + pdq(0,1,13) + PDQ(0,0,1)),
-    auto = ARIMA(TFR, stepwise = FALSE, approx = FALSE)
+    arima410110 = ARIMA(log(TFR) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)),
+    arima0113110 = ARIMA(log(TFR) ~ pdq(0, 1, 13) + PDQ(1,1,0, period = 12)),
+    arima018110 = ARIMA(log(TFR) ~ pdq(0, 1, 8) + PDQ(1,1,0, period = 12)),
+    arima1520100 = ARIMA(log(TFR) ~ pdq(15,2,0) + PDQ(1,0,0, period = 12)),
+    arima1320100 = ARIMA(log(TFR) ~ pdq(13,2,0) + PDQ(1,0,0, period = 12)),
+    arima0213100 = ARIMA(log(TFR) ~ pdq(0,2,13) + PDQ(1,0,0, period = 12)),
+    arima120100 = ARIMA(log(TFR) ~ pdq(1,2,0) + PDQ(1,0,0, period = 12)),
+    auto = ARIMA(log(TFR) ~ PDQ(period = 12), stepwise = FALSE, approx = FALSE)
   )
 
-fert_fit |>
+TFR_fit |>
   pivot_longer(everything(),
                names_to = "Model name",
                values_to = "Order")
 
-glance(fert_fit) |>
+glance(TFR_fit) |>
   arrange(AICc) |>
   select(.model:BIC) 
 
-fert_fit |>
-  select(arima0113001) |>
-  gg_tsresiduals(lag = 36) 
+TFR_fit |>
+  select(arima410110) |>
+  gg_tsresiduals(lag = 60) 
 
-augment(fert_fit) |>
-  filter(.model == "arima1510001") |>
-  features(.innov, ljung_box, lag = 24, dof = 16)
+augment(TFR_fit) |>
+  filter(.model == "arima410110") |>
+  features(.innov, ljung_box, lag = 24, dof = 5)
 
 ##TLB
-fert_fit <-
+TLB_fit <-
   train |>
   model(
-    auto = ARIMA(TLB, stepwise = FALSE, approx = FALSE)
+    arima410110 = ARIMA(log(TLB) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)),
+    arima1310110 = ARIMA(log(TLB) ~ pdq(13,1,0) + PDQ(1,1,0, period = 12)),
+    arima0110110 = ARIMA(log(TLB) ~ pdq(0,1,10) + PDQ(1,1,0, period = 12)),
+    arima1310100 = ARIMA(log(TLB) ~ pdq(13,1,0) + PDQ(1,0,0, period = 12)),
+    arima0113100 = ARIMA(log(TLB) ~ pdq(0,1,13) + PDQ(1,0,0, period = 12)),
+    arima0111100 = ARIMA(log(TLB) ~ pdq(0,1,11) + PDQ(1,0,0, period = 12)),
+    arima1310001 = ARIMA(log(TLB) ~ pdq(13,1,0) + PDQ(0,0,1, period = 12)),
+    arima0113001 = ARIMA(log(TLB) ~ pdq(0,1,13) + PDQ(0,0,1, period = 12)),
+    arima0111001 = ARIMA(log(TLB) ~ pdq(0,1,11) + PDQ(0,0,1, period = 12)),
+    auto = ARIMA(log(TLB) ~ PDQ(period = 12), stepwise = FALSE, approx = FALSE)
   )
+
+TLB_fit |>
+  pivot_longer(everything(),
+               names_to = "Model name",
+               values_to = "Order")
+
+
+glance(TLB_fit) |>
+  arrange(AICc) |>
+  select(.model:BIC) 
+
+TLB_fit |>
+  select(arima410110) |>
+  gg_tsresiduals(lag = 60) 
+
+augment(TLB_fit) |>
+  filter(.model == "arima410110") |>
+  features(.innov, ljung_box, lag = 24, dof = 5)
