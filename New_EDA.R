@@ -64,19 +64,30 @@ fert_df |>
 
 train <- 
   fert_df |>
-  select(Year, TFR, TLB) |>
+  select(Year, TFR, TLB, Zodiac) |>
   filter(Year <= 2012)
 
 test <-
   fert_df |>
-  select(Year, TFR, TLB) |>
+  select(Year, TFR, TLB, Zodiac) |>
   filter(Year > 2012)  
 
 ### TFR
 train |>
   autoplot(log(TFR) |>
+             difference(12) |>
+             difference(1))
+
+train |>
+  autoplot(log(TFR) |>
              difference(1) |>
              difference(1))
+
+train |>
+  features(log(TFR) |>
+             difference(12) |>
+             difference(1), list(unitroot_kpss, 
+                                 unitroot_ndiffs))
 
 train |>
   features(log(TFR) |>
@@ -86,18 +97,52 @@ train |>
 
 train |>
   gg_tsdisplay(log(TFR) |> 
+                 difference(12) |>
+                 difference(1), plot_type = 'partial', lag_max = 45)
+
+train |>
+  ACF(log(TFR) |> 
+        difference(12) |>
+        difference(1), lag_max = 45) |>
+  autoplot()
+
+train |>
+  PACF(log(TFR) |> 
+        difference(12) |>
+        difference(1), lag_max = 45) |>
+  autoplot()
+
+# d = 1, D = 12
+### Seasonal ACF: only 12
+### Seasonal PACF: Exponential decay, no significance
+### (0,1,1)_12
+### ACF: last significance is 13 but maybe 8 as 12 13 is affected by seasonal lags. Damped Sine-wave. 
+### PACF: last significant is 4
+### AR(4,1,0) or MA(0,1,8) or MA(0,1,13)
+
+train |>
+  gg_tsdisplay(log(TFR) |> 
                  difference(1) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
+                 difference(1), plot_type = 'partial', lag_max = 45)
 
-#Seasonal ACF: there is a weak exponential decay at lags 12, 24,36
-#Seasonal PACF: Only significant at lag 12. 
-#Evident seasonality so D = 0
-#(0,0,1)_12
+train |>
+  PACF(log(TFR) |>
+         difference(1) |>
+         difference(1), lag_max = 45) |>
+  autoplot()
 
-#PACF: significant spikes at lag 1,2,11,15. None beyond lag 15. Also has a damped sine wave manner. 
-#ACF: Signficant spikes at lag 1,11,13, Dies out in a sine wave like manner. 
-#differenced once, d = 1
-#possible model ARIMA models: (15,1,0), (0,1,13)
+train |>
+  ACF(log(TFR) |>
+        difference(1) |>
+        difference(1), lag_max = 45) |>
+  autoplot()
+# d = 2, D = 0
+### Seasonal ACF: 12, 24, exponential decay
+### Seasonal PACF: only 12 significant
+### (1,0,0)_12
+### ACF: last significant is 1, lags 11 and 13 are affected by the seasonal lag
+### PACF: last significant is 15, damped sine wave
+### AR(15,2,0), or AR(13,2,0) or MA(0,2,13) or MA(1,2,0)
 
 ### TLB
 train |>
@@ -105,25 +150,64 @@ train |>
 
 train |>
   autoplot(log(TLB) |>
+             difference(12)) 
+
+train |>
+  autoplot(log(TLB) |>
+             difference(12) |>
              difference(1))
 
 train |>
   features(log(TLB) |>
+             difference(12) |>
              difference(1), list(unitroot_kpss, 
                                  unitroot_ndiffs,
                                  unitroot_nsdiffs))
+
 train |>
   gg_tsdisplay(log(TLB) |>
-                 difference(1), plot_type = 'partial', lag_max = 36)
-#there's spike at seasonal lags 12 24 for the ACF, PACF only has a lag spike at 12
-#The data is already stationary, may consider a SARIMA with a D = 0 model
-#ACF: spikes at seasonal lag 12, 24. Only 12 is significant. Exponential decays
-#PACF: spikes at only 12, negative at 24, and 36
-#(1,0,0)_12
+                 difference(12) |>
+                 difference(1), plot_type = 'partial', lag_max = 45)
 
-#ACF: only significant at 13. There is almost a significant spike at 25. Dies out in an sine wave like manner
-#PACF: last significant at 13. No spikes beyond 13. This also dies out in a sine wave like manner
-#either an AR(13) or MA(13) but more inclined to pick a MA(13) model
-#possible models ARIMA: (13,1,0) or (0,1,13) 
+train |>
+  PACF(log(TLB) |>
+         difference(12) |>
+         difference(1), lag_max = 45) |>
+  autoplot()
+
+train |>
+  ACF(log(TLB) |>
+        difference(12) |>
+        difference(1), lag_max = 45) |>
+  autoplot()
+# d = 1 D = 1
+### Seasonal ACF: 12, exponential decay
+### Seasonal PACF: no significant, exponential decay 
+### (1,1,0)_12
+### ACF: last significant 13. This lag could be affected by seasonals. damped sine wave. However lag 4 is correlated with PACF Lag 4
+### PACF: last significant is 10. damped sine wave.
+### AR(4,1,0) or AR(13,1,0) or MA(0,1,10)
+
+
+train |>
+  gg_tsdisplay(log(TLB) |>
+                 difference(1), plot_type = 'partial', lag_max = 45)
+
+train |>
+  PACF(log(TLB) |>
+         difference(1), lag_max = 45) |>
+  autoplot()
+
+train |>
+  ACF(log(TLB) |>
+        difference(1), lag_max = 45) |>
+  autoplot()
+# d = 1 D = 0
+### Seasonal ACF: only 12, 24 may look significant but it's not. exponential decay
+### Seasonal PACF: only 12, exponential decay
+###(1,0,0)_12 or (0,0,1)_12
+#ACF: last significant 13, damped sine wave
+#PACF: last significant 13, damped sine wave
+### AR(13,1,0) or (0,1,13)
 
 
