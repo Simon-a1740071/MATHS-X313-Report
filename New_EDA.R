@@ -236,6 +236,6 @@ train |>
 ### Seasonal ACF: Hard to judge, only 12 is significant. 
 ### Seasonal PACF: Hard to judge, no significant, Possible exponential decay
 ### (0,1,0)_12 or (0,1,1)_12
-### ACF: Sine wave, damped decay to zero. Last significant is 20. PACF only shows 4. So true last significant is probably 4.
-### PACF: last significant is 4, damped sine wave. Cannot possibly conclude a MA model from this. 
-### AR(4,0,0) or (20,0,0) 
+### ACF: Sine wave, damped decay to zero. Last significant is 20. PACF only shows 5. So true last significant is probably 5 theyre correlated here.
+### PACF: last significant is 5, damped sine wave. Cannot possibly conclude a MA model from this. 
+### AR(5,0,0) or (20,0,0) 
