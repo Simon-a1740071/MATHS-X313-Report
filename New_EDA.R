@@ -150,16 +150,13 @@ train |>
 
 train |>
   autoplot(log(TLB) |>
-             difference(12)) 
-
-train |>
-  autoplot(log(TLB) |>
              difference(12) |>
              difference(1))
 
 train |>
   features(log(TLB) |>
-             difference(12), list(unitroot_kpss, 
+             difference(12) |>
+             difference(1), list(unitroot_kpss, 
                                  unitroot_ndiffs,
                                  unitroot_nsdiffs))
 
@@ -205,7 +202,40 @@ train |>
 ### Seasonal ACF: only 12, 24 may look significant but it's not. exponential decay
 ### Seasonal PACF: only 12, exponential decay
 ### (1,0,0)_12 or (0,0,1)_12
-#ACF: last significant 13, damped sine wave
-#PACF: last significant 13, damped sine wave
+### ACF: last significant 13, damped sine wave
+### PACF: last significant 13, damped sine wave
 ### AR(13,1,0) or MA(0,1,13) or MA(0,1,11)
  
+
+
+train |>
+  autoplot(log(TLB) |>
+             difference(12))
+
+train |>
+  features(log(TLB) |>
+             difference(12), list(unitroot_kpss, 
+                                 unitroot_ndiffs,
+                                 unitroot_nsdiffs))
+
+train |>
+  gg_tsdisplay(log(TLB) |>
+                 difference(12), plot_type = 'partial', lag_max = 45)
+
+train |>
+  PACF(log(TLB) |>
+         difference(12), lag_max = 45) |>
+  autoplot()
+
+train |>
+  ACF(log(TLB) |>
+        difference(12), lag_max = 45) |>
+  autoplot()
+
+# d = 0, D = 1
+### Seasonal ACF: Hard to judge, only 12 is significant. 
+### Seasonal PACF: Hard to judge, no significant, Possible exponential decay
+### (0,1,0)_12 or (0,1,1)_12
+### ACF: Sine wave, damped decay to zero. Last significant is 20. PACF only shows 4. So true last significant is probably 4.
+### PACF: last significant is 4, damped sine wave. Cannot possibly conclude a MA model from this. 
+### AR(4,0,0) or (20,0,0) 
