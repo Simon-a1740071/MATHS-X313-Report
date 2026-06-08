@@ -78,8 +78,8 @@ TLB_fit <-
     arima1310001 = ARIMA(log(TLB) ~ pdq(13,1,0) + PDQ(0,0,1, period = 12)),
     arima0113001 = ARIMA(log(TLB) ~ pdq(0,1,13) + PDQ(0,0,1, period = 12)),
     arima0111001 = ARIMA(log(TLB) ~ pdq(0,1,11) + PDQ(0,0,1, period = 12)),
-    arima400010 = ARIMA(log(TLB) ~ pdq(4,0,0) + PDQ(0,1,0, period = 12)),
-    arima400011 = ARIMA(log(TLB) ~ pdq(4,0,0) + PDQ(0,1,1, period = 12)),
+    arima500010 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,0, period = 12)),
+    arima500011 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,1, period = 12)),
     arima2000010 = ARIMA(log(TLB) ~ pdq(20,0,0) + PDQ(0,1,0, period = 12)),
     arima2000011 = ARIMA(log(TLB) ~ pdq(20,0,0) + PDQ(0,1,1, period = 12)),
     auto = ARIMA(log(TLB) ~ PDQ(period = 12), stepwise = FALSE, approx = FALSE)
@@ -96,12 +96,41 @@ glance(TLB_fit) |>
   select(.model:BIC) 
 
 TLB_fit |>
-  select(arima410110) |>
+  select(arima500011) |>
   gg_tsresiduals(lag = 60) 
 
 augment(TLB_fit) |>
-  filter(.model == "arima410110") |>
-  features(.innov, ljung_box, lag = 24, dof = 5)
+  filter(.model == "arima500011") |>
+  features(.innov, ljung_box, lag = 24, dof = 6)
 
-#Forcasting
+#Forecasting
+## TFR
+TFR_fit |>
+  forecast(new_data = test) |>
+  accuracy(test) |>
+  arrange(RMSE) |>
+  select(.model, RMSE)
 
+TFR_bestFit <-
+  train |>
+  model(arima410110 = ARIMA(log(TFR) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)))
+
+TFR_bestFit |>
+  forecast(new_data = test) |>
+  autoplot(test)
+
+## TLB
+
+TLB_fit |>
+  forecast(new_data = test) |>
+  accuracy(test) |>
+  arrange(RMSE) |>
+  select(.model, RMSE)
+
+TLB_bestFit <-
+  train |>
+  model(arima410110 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,1, period = 12)))
+  
+TLB_bestFit |>
+  forecast(new_data = test) |>
+  autoplot(test)
