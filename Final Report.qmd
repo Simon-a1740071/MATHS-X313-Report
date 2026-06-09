@@ -1,0 +1,24 @@
+---
+title: "Final Report"
+format: pdf
+editor: visual
+---
+
+## Abstract
+
+### Introduction
+
+### Methods
+
+### Discussion
+
+### Conclusion
+
+### References
+
+-   Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg. <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
+-   Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder. <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
+
+### Statistical Appendix
+
+-   [Github Repository](https://github.com/Simon-a1740071/MATHS-X313-Report)
