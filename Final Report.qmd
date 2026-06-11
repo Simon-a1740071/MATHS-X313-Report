@@ -57,7 +57,7 @@ TLB_fit <-
     arima500011 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,1, period = 12)))
 ```
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 # Model Fitting on Test
 TFR_bestFit <-
   train |>
@@ -76,7 +76,7 @@ It's seen in **Figures 1** and **Figures 2** that this data exhibits strong down
 
 With TFR, the selected model $\text{SARIMA}(4,1,0)(1,1,0)_{12}$ has the lowest forecast error in **Table 5** and is consistent with white noise assumptions presented in **Figure 5** and **Table 6**. This model has captured the declining trend and remained within 95% expectation of a Time Series shown in **Figure 9**. However, has failed to fully capture the 12-year cyclical pattern in Be it due to lack of data or a more complex modelling is required.
 
-TLB, it's best possible model was of the same structure as TFR, yielding the lowest root mean square error among other potential models in **Table 8**. Further residual diagnostics presented in **Figures 8** and **Table 9** supports this. However, forecasts in **Figure 10** shows high uncertainty and insufficiently capture the decline in live births or the cyclical nature.
+TLB, it's best possible model was of the same structure as TFR, yielding the lowest root mean square error among other potential models in **Table 9**. Further residual diagnostics presented in **Figures 8** and **Table 10** supports this. However, forecasts in **Figure 10** shows high uncertainty and insufficiently capture the decline in live births or the cyclical nature.
 
 SARIMA models were successful in modelling the declining trend in total fertility rates in Singapore, producing forecasts for the this variable that were within expectation despite not capturing the 12 year cycle effectively for father into the forecasts. Modelling for total live births was however far less fruitful in capturing the more volatile and cyclical nature of the data. Suggesting that SARIMA does explains the data well enough, additional resources, more complex modelling may be required to model Zodiacal lead family planning.
 
@@ -102,7 +102,7 @@ The dataset has been provided by the Singapore Department of Statistics[^1]. It 
 
     -   Data is concerned with all live births within Singapore and its territorial waters as registered by the Singaporean government at the year of birth.
 
-Singapore's demographic composition is majority ethnically Chinese[^3]. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cycle is used to mark Lunar New Year for populations of Chinese descent or cultural connection, such as China, Taiwan, Hong Kong, and especially so for Singapore. Additionally, in Chinese astrology there is a belief that an individual's personality, characteristics and future prospects are based on what zodiac animal the corresponding Gregorian year is[^4]. According to *Priceconomics (2015)*, for Singapore, there was concious effort by parents to time pregnancies so they align with the year of the Dragon. This is mainly because dragons are often associated with qualities of honesty, magnanimity and power. Conversely there is an aversion to years corresponding with the Tiger, as they're often associated with disobedience and long term difficulties for themselves and and surrounding family. The complete cycle of Zodiac Animals and the most recent years that they correspond with is seen in **Table 1**.
+Singapore's demographic composition is majority ethnically Chinese[^3]. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cycle is used to mark Lunar New Year for populations of Chinese descent or cultural connection, such as China, Taiwan, Hong Kong, and especially so for Singapore. Additionally, in Chinese astrology there is a belief that an individual's personality, characteristics and future prospects are based on what zodiac animal the corresponding Gregorian year is[^4]. According to *Priceconomics (2015)*, for Singapore, there was conscious effort by parents to time pregnancies so they align with the year of the Dragon. This is mainly because dragons are often associated with qualities of honesty, magnanimity and power. Conversely there is an aversion to years corresponding with the Tiger, as they're often associated with disobedience and long term difficulties for themselves and and surrounding family. The complete cycle of Zodiac Animals and the most recent years that they correspond with is seen in **Table 1**.
 
 [^3]: Cultural Atlas n.d., *Singaporean culture: population statistics*, SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
 
@@ -128,17 +128,15 @@ Therefore, from this exploratory data analysis, given the contextual background 
 
 ### Discussion and Conclusion
 
--   Thoroughly integrated limitations of models and processes into statistical conclusions.
+A limitation is that SARIMA is univariate, it uses past values of the series to forecast future outcomes. Hence, it cannot account for behavioural, cultural or policy related influences especially for timing birth preferences according to *Priceconomics (2015).* SARIMA isn't designed to account for human behaviour such as this so issues have arisen from modelling the 12-year Zodiac cycle, such as unusually high RSME in **Table 9**.
 
--   Comprehensively evaluated impact of model limitations on answering research question.
+Additionally, the data from 1970s onwards is more prominent than previous years. Due to modernisation, and industrialisation of Singapore, families as a result have gotten smaller and thus more careful planning around Zodiac cycles[^6]. Another limitation would be using exclusively the Total fertility rate or live births in general, when trying to model this zodiac cycle. Despite Singapore being a majority ethnically Chinese there is still a sizable percentage of other ethnic groups that do not typically follow these traditions. So accounting for these, grouping by ethnicity may help clear up the data for better modelling. Furthermore, as the Lunar calendar does not alight 1:1 with a Gregorian calendar, there's reasonable oddities with trying to model a seasonal cycle that is culturally specific.
 
-    -   Do not repeat findings here
+[^6]: Business Insider 2024, *Chinese parents of dragon babies: experts on drawbacks in Singapore, competition, education, personality*, Business Insider, <https://www.businessinsider.com/chinese-parents-dragon-babies-experts-drawbacks-singapore-competition-education-personality-2024-8?>
 
-    -   Any weirdness in findings that needs to be explored further or retested should be discussed.
+So to conclude, SARIMA models provide a reasonable statistical explanation of Singapore's fertility data. However there are limitations and these findings cannot explain and capture well enough the cultural demographic pattern. The models were able toe generate forecasts and capture broadly the data, but not fully capture a cultural phenomena that is present with in the data.
 
-    -   Highlight missing data and possible sources of confounding or lurking variables
-
-    -   Discuss models, their outcomes and predictions with relevance to research question.
+\newpage
 
 ### Methods
 
@@ -207,12 +205,18 @@ Before any transformations and differencing was done, the data was split into tw
 First we consider not applying a seasonal difference of 12. The variable was first log transformed to remove the heterogeneity. Then a KPSS (Kwiatkowski-Phillips-Schmidt-Shin) test was conducted to check if the data is stationary. **Table 2** shows the test statistics, it's p-value and the number of differences needed. Here it requires a difference of order 2.
 
 ```{r Tab2, echo = FALSE, message = FALSE}
+#Tab2
 train |>
   features(log(TFR), list(unitroot_kpss, 
                                  unitroot_ndiffs)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "The KPSS test on Log transformed TFR.Rounded to 3 significant figures. It's p-value is less then 0.05. So reject the null hypothesis that's it's stationary. The number of differences needed is 2." )
+    caption = 
+      "The KPSS test on Log transformed TFR.
+    Rounded to 3 significant figures. 
+    It's p-value is less then 0.05. 
+    So reject the null hypothesis that's it's stationary. 
+    The number of differences needed is 2." )
 
 ```
 
@@ -227,6 +231,7 @@ $$
 $$
 
 ```{r Fig3, fig.cap = "The time plot of the twice differenced log transformed TFR, it's ACF and PACF. The asusmption of stationarity is met here. It's wondering around zero and there no obivious patterns", echo = FALSE, message = FALSE, warning = FALSE}
+#Fig3
 train |>
   gg_tsdisplay(log(TFR) |> 
                  difference(1) |>
@@ -237,13 +242,18 @@ train |>
 Now a seasonal difference of 12 years is implemented before removing the trend via a first order difference. Using the KPSS statistics again, it's shown that in **Table 3** the null-hypothesis is rejected as it is not stationary, there is still a first order difference needed to remove the trend.
 
 ```{r Tab3, echo = FALSE, message = FALSE}
+#Tab3
 train |>
   features(log(TFR) |>
              difference(12), list(unitroot_kpss, 
                                  unitroot_ndiffs)) |>
-  mutate
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "The KPSS test on Log transformed TFR. It's p-value is less than 0.05. So we reject the null hypothesis that's it's stationary. The number of differences needed is 1." )
+    caption = 
+      "The KPSS test on Log transformed TFR. 
+    It's p-value is less than 0.05. 
+    So we reject the null hypothesis that's it's stationary. 
+    The number of differences needed is 1." )
 ```
 
 **Figure 4** shows that the time plot is now stationary. Only the seasonal lags 12 on the ACF is significant while the PACF displays insignificant seasonal lags that are exponentially decaying. So a auto-regression of 1 for the seasonal component will be considered.
@@ -252,19 +262,20 @@ For the non-seasonal lags, on the ACF, it's last significant is 13, however it b
 
 Candidate models to be considered, assuming white noise are:
 
--   $\text{SARIMA}(1,1,0)(1,1,0)_{12}:$
+-   $\text{SARIMA}(1,1,0)(1,1,0)_{12}$:
 
 $$
 \phi_1(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TFR}_t) = Z_t
 $$
 
--   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$
+-   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$:
 
 $$
 \phi_4(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TFR}_{t}) = Z_t
 $$
 
 ```{r Fig4, fig.cap = "Time plot, ACF and PACF of the log transformed TFR seasonally differenced and first order differenced. It is is now stationary, note 12 data points have been removed, leaving only years from 1970s onwards.", echo = FALSE, message = FALSE, warning = FALSE}
+#Fig4
 train |>
   gg_tsdisplay(log(TFR) |> 
                  difference(12) |>
@@ -275,17 +286,22 @@ train |>
 The candidate models were fitted to the training data and their AICc evaluated seen in **Table 4**. Amongst the two models with the same total differencing, the AR(1) model has the lowest AICc of -100.
 
 ```{r Tab4,echo = FALSE, message = FALSE}
+#Tab4
 glance(TFR_fit) |>
   arrange(AICc) |>
   select(.model:BIC) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Model selection statistics of Canidate SARIMA models for the log transforms of TFR based on AICc rounded to 3 significant figures") 
+    caption = 
+      "Model selection statistics of 
+    SARIMA models for the log transforms of TFR based on AICc. 
+    Rounded to 3 significant figures") 
 ```
 
--   When comparing with the the root mean squared error, the AR(4) model has the lowest value in **Table 5** despite having a slightly higher AICc. The twice first order differenced model has the largest RMSE of 1.18. So the best possible model is an AR(4).
+When comparing with the the root mean squared error, the AR(4) model has the lowest value in **Table 5** despite having a slightly higher AICc. The twice first order differenced model has the largest RMSE of 1.18. So the best possible model is an AR(4).
 
 ```{r Tab5,echo = FALSE, message = FALSE}
+#Tab5
 TFR_fit |>
   forecast(new_data = test) |>
   accuracy(test) |>
@@ -293,25 +309,35 @@ TFR_fit |>
   select(.model:MAPE) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Forest Accuracy Statistics of Canidate SARIMA models for the log transforms of TFR based on RMSE rounded to 3 significant figures") 
+    caption = 
+      "Forest Accuracy Statistics of 
+    SARIMA models for the log transforms of TFR based on RMSE. 
+    Rounded to 3 significant figures") 
   
 ```
 
 The residuals are then evaluated to check if they meet the white noise assumption for the selected model in **Figure 5**. A Ljung-box test is then use to reconfirm the white noise assumption in **Table 6**.
 
 ```{r Fig5, fig.cap= "Time plot, ACF and histogram of residuals for selected best model. No signficant spikes in the ACF for lags, the residuals are appropriately white noise. The histogram centred around zero with an outlier around 0.2. Therefore can be used for forecasting",echo = FALSE, message = FALSE}
+#Fig5
 TFR_fit |>
   select(arima410110) |>
   gg_tsresiduals(lag = 60) 
 ```
 
 ```{r Tab6,echo = FALSE, message = FALSE}
+#Tab6
 augment(TFR_fit) |>
   filter(.model == "arima410110") |>
   features(.innov, ljung_box, lag = 24, dof = 5) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Ljung-Box Test of the selected model. The degree's of freedom are the parameters for the AR and MA components. It's p-value is greater than 0.05 so no significant difference compared to white noise") 
+    caption = 
+      "Ljung-Box Test of the selected AR(4) model. 
+    The degree's of freedom are the 
+    parameters for the AR and MA components. 
+    It's p-value is greater than 0.05 so
+    no significant difference compared to white noise") 
 ```
 
 #### TFB
@@ -323,10 +349,11 @@ For the non-seasonal component, in the ACF, the last significant lag is 13 while
 -   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$
 
 $$
-\phi_4(B)\Phi_1(B)\nabla\nabla_{12}\log(\text{TLB}_t) = Z_t
+\phi_4(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TLB}_t) = Z_t
 $$
 
 ```{r Fig6,fig.cap = "Time plot, ACF and PACF of the log transformed TLB seasonally differenced and first order differenced. It is is now stationary, note 12 data points have been removed, leaving only years from 1970s onwards.", echo = FALSE, message = FALSE, warning = FALSE}
+#Fig6
 train |>
   gg_tsdisplay(log(TLB) |>
                  difference(12) |>
@@ -334,16 +361,22 @@ train |>
                plot_type = 'partial', lag_max = 45)
 ```
 
-Additionally considered only the seasonal difference in **Figure 6**. The KPSS test statistic in **Table 6** after differencing by 12 years shows that the time plot is stationary and no first order differencing is required.
+Additionally considered only the seasonal difference in **Figure 6**. The KPSS test statistic in **Table 7** after differencing by 12 years shows that the time plot is stationary and no first order differencing is required.
 
-```{r Tab6, echo = FALSE, message = FALSE}
+```{r Tab7, echo = FALSE, message = FALSE}
+#Tab7
 train |>
   features(log(TLB) |>
              difference(12), list(unitroot_kpss, 
                                  unitroot_ndiffs)) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "The KPSS test on Log transformed TKB.Rounded to 3 significant figures. It's p-value is greater than 0.05. Accept the null hypothesis that's it's stationary. No first order difference needed")
+    caption = 
+      "The KPSS test on Log transformed TKB.
+    Rounded to 3 significant figures. 
+    It's p-value is greater than 0.05. 
+    Accept the null hypothesis that's it's stationary. 
+    No first order difference needed")
 ```
 
 In **Figure 7** Seasonal ACF and PACF lags are difficult to determine, however on the ACF, only lag 12 is significant. Considered a seasonal component of no MA and AR. As well as a an AR(1) model.
@@ -359,29 +392,39 @@ $$
 -   $\text{SARIMA}(5,0,0)(1,1,0)_{12}$
 
 $$
-\phi_5(B)\Phi_1(B)\nabla_{12}\log(\text{TFR_t)} = Z_t
+\phi_5(B)\Phi_1(B^{12})\nabla_{12}\log(\text{TLB}_t) = Z_t
 $$
 
 ```{r Fig7, fig.cap = "Time plot, ACF and PACF of the log transformed TLB  seasonally differenced only. It is stationary according to the KPPS test, note 12 data points have been removed, leaving only years from 1970s onwards. A strong sine decaying sine wave is present in the ACF", echo = FALSE, message = FALSE, warning = FALSE}
+#Fig7
 train |>
   gg_tsdisplay(log(TLB) |>
                  difference(12), plot_type = 'partial', lag_max = 45)
 ```
 
-Candidate models have been fitted the test data in **Table 7**. Based on AICc alone the best possible model amongst the models with no first order differencing is seasonal MA(1) with an AICc of -105.
+Candidate models have been fitted the test data in **Table 8**. Based on AICc alone the best possible model amongst the models with no first order differencing is seasonal MA(1) with an AICc of -105.
 
-```{r Tab7, echo = FALSE, message = FALSE}
+```{r Tab8, echo = FALSE, message = FALSE}
+#Tab8
 glance(TLB_fit) |>
   arrange(AICc) |>
   select(.model:BIC) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Model selection statistics of Canidate SARIMA models for the log transforms of TFR based on AICc rounded to 3 significant figures. Note despite being unable to compared between models with differing numbers of differencing, the AR(4) model has the lowest AICc" )
+    caption = 
+      "Model selection statistics of 
+    SARIMA models for the log transforms of TLB based on AICc. 
+    Rounded to 3 significant figures. 
+    Note despite being unable to 
+    compared between models 
+    with differing numbers of differencing, 
+    the AR(4) model has the lowest AICc" )
 ```
 
-Further model comparison is done, based on the RMSE in **Table 8**. See that an AR(4) model with both a first order and seasonal difference has the lowest RMSE of 3370. This is an unusually highly positive value and will be further discussed in the **Discussion and Conclusion**. However, out of the manually created candidate models, the selected as the best possible model is this.
+Further model comparison is done, based on the RMSE in **Table 9**. See that an AR(4) model with both a first order and seasonal difference has the lowest RMSE of 3370. This is an unusually highly positive value and will be further discussed in the **Discussion and Conclusion**. However, out of the manually created candidate models, the selected as the best possible model is this.
 
-```{r Tab8, echo = FALSE, message = FALSE}
+```{r Tab9, echo = FALSE, message = FALSE}
+#Tab9
 TLB_fit |>
   forecast(new_data = test) |>
   accuracy(test) |>
@@ -389,22 +432,32 @@ TLB_fit |>
   select(.model:MAPE) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Forest Accuracy Statistics of Canidate SARIMA models for the log transforms of TLB based on RMSE rounded to 3 significant figures")
+    caption = 
+      "Forest Accuracy Statistics of 
+    SARIMA models for the log transforms of TLB based on RMSE. 
+    Rounded to 3 significant figures")
 ```
 
-```{r Fig8, fig.cap= "Time plot, ACF and histogram of residuals for selected best model. No signficant spikes in the ACF for lags. The residuals are appropriately white noise. The histogram centred around zero with an outlier between 0.10 and 0.15. Therefore can be used for forecasting",echo = FALSE, message = FALSE}
+```{r Fig8, fig.cap= "Time plot, ACF and histogram of residuals for selected best model. No signficant spikes in the ACF for lags. The residuals are appropriately white noise. The histogram centred around zero with an outlier between 0.10 and 0.15. Therefore can be used for forecasting", echo = FALSE, message = FALSE}
+#Fig8
 TLB_fit |>
   select(arima410011) |>
   gg_tsresiduals(lag = 60) 
 ```
 
-```{r Tab9, echo = FALSE, message = FALSE}
+```{r Tab10, echo = FALSE, message = FALSE}
+#Tab10
 augment(TLB_fit) |>
   filter(.model == "arima410011") |>
   features(.innov, ljung_box, lag = 24, dof = 5) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Further checking with Ljung-Box Test of the selected model. The degree's of freedom are the parameters for the AR and MA components. It's p-value is greater than 0.05 so no significant difference compared to white noise") 
+    caption = 
+      "Further checking with Ljung-Box Test of the selected model. 
+    The degree's of freedom are the parameters 
+    for the AR and MA components. 
+    It's p-value is greater than 0.05 
+    so no significant difference compared to white noise") 
 ```
 
 ### Results
@@ -423,16 +476,20 @@ $$
 
 -   $\Phi_1(B^{12}) = 1 + 0.334B^{12}$
 
-```{r Tab10, echo = FALSE, message = FALSE}}
+```{r Tab11, echo = FALSE, message = FALSE}
+#Tab11
 TFR_bestFit |>
   tidy() |>
   select(term:p.value) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Parameter estimates of the selected model for TFR, rounded to 3 significant figures") 
+    caption = 
+      "Parameter estimates of 
+    the selected model for TFR, rounded to 3 significant figures") 
 ```
 
-```{r Tab11, echo = FALSE, message = FALSE}}
+```{r Tab12, echo = FALSE, message = FALSE}
+#Tab12
 TFR_bestFit |>
   glance() |>
   select(sigma2:BIC) |>
@@ -443,10 +500,13 @@ TFR_bestFit |>
   ) |>
   
    knitr::kable(
-    caption = "Model fit statistics of the selected model for TFR, rounded to 3 significant figures") 
+    caption = 
+      "Model fit statistics of the selected model for TFR.
+    Rounded to 3 significant figures") 
 ```
 
 ```{r Fig9,echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TFR by the model. See that over time, the projection models the downward trend. Uncertainty widens over time which is within expectation of Time Series. Note the cylical pattern isn't well captured here by the SARIMA model. As from contextual information, the prominence of this pattern only occured from 1970s onwards. It's possible that there isn't enough of the data too completely capture this cycle. Overall the projection of the test data is still within the 95% prediction intervals."}
+#Fig9
 TFR_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
@@ -464,16 +524,19 @@ $$
 
 -   $\Phi_1(B^{12}) = 1 + 0.302B^{12}$
 
-```{r Tab12,echo = FALSE, message = FALSE}}
+```{r Tab13,echo = FALSE, message = FALSE}
 TLB_bestFit |>
   tidy() |>
   select(term:p.value) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Parameter estimates of the selected model for TLB, rounded to 3 significant figures") 
+    caption = 
+      "Parameter estimates of the selected model for TLB.
+    Rounded to 3 significant figures") 
 ```
 
-```{r Tab13, echo = FALSE, message = FALSE}}
+```{r Tab14, echo = FALSE, message = FALSE}
+#Tab14
 TLB_bestFit |>
   glance() |>
   select(sigma2:BIC) |>
@@ -484,10 +547,13 @@ TLB_bestFit |>
   ) |>
   mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "Model fit statistics of the selected model for TLB, rounded to 3 significant figures") 
+    caption = 
+      "Model fit statistics of the selected model for TLB.
+    Rounded to 3 significant figures") 
 ```
 
-```{r Fig10, echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TLB by the selected model. This has wider prediction bands suggestiong higher volatility and fluctuations. Fails to capture the decreasing trend and cylical nature of the data. Hence a SARIMA model may not be best are at modelling total live births despite still being with in the 95% prediction intervals."}}
+```{r Fig10, echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TLB by the selected model. This has wider prediction bands suggestiong higher volatility and fluctuations. Fails to capture the decreasing trend and cylical nature of the data. Hence a SARIMA model may not be best are at modelling total live births despite still being with in the 95% prediction intervals."}
+#Fig10
 TLB_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
@@ -507,6 +573,8 @@ TLB_bestFit |>
 
 5.  CNA 2023, *News analysis: Singapore's historic low fertility rate not worrying yet, with clearer sign to come for 2024 Year of the Dragon*, CNA, viewed 11 June 2026, <https://www.channelnewsasia.com/singapore/news-analysis-dip-singapore-2022-low-birth-rate-2024-dragon-year-5591231>
 
+6.  Business Insider 2024, *Chinese parents of dragon babies: experts on drawbacks in Singapore, competition, education, personality*, Business Insider, <https://www.businessinsider.com/chinese-parents-dragon-babies-experts-drawbacks-singapore-competition-education-personality-2024-8?>
+
 \newpage
 
 ### Statistical Appendix
@@ -515,7 +583,91 @@ TLB_bestFit |>
 
 -   [Github Repository](https://github.com/Simon-a1740071/MATHS-X313-Report)
 
--   Code used in the Report:
+**SARIMA Models** $\text{SARIMA}(p,d,q)(P,D,Q)_m$
+
+For seasonal ARIMA with $m$ periods with white noise assumption, the general model is:
+
+$$
+\phi(B)\Phi(B^m) \nabla^d\nabla^D_mX_t = \theta(B)\Theta(B^m)Z_t 
+$$
+
+-   The AR(p) and Seasonal AR(P)
+
+$$
+\phi(z) = 1 - \sum^p_{i=1}\phi_iz^i
+$$
+
+$$
+\Phi(z) = 1 - \sum^P_{i=1}\Phi_iz^i
+$$
+
+-   The $d$ order Difference and Seasonal Difference $D$
+
+$$
+\nabla^d = (1-B)^d
+$$
+
+$$
+\nabla_m^D = (1-B^m)^D
+$$
+
+-   The MA(q) and Seasonal MA(Q)
+
+$$
+\theta(z) = 1 - \sum^q_{i=1}\theta_iz^i
+$$
+
+$$
+\Theta(z) = 1 - \sum^Q_{i=1}\Theta_iz^i
+$$
+
+**Autocorrelation**
+
+For lag $k$, the ACF is the measure between the relationship between $y_t$ and $y_{t-k}$:
+
+$$ \rho(k) = r_k = \frac{\sum^T_{t=k+1}(y_t - \bar{y})(y_{t-k}-\bar{y})}{\sum^T_{t=1}(y_t - \bar{y})^2} $$
+
+**Partial Autocorrelation**
+
+The theoretical partial autocorrelation function of a stationary time series is calculated using the Durbin-Levinson Algorithm
+
+$$ \phi_{n,n} = \frac{\rho(n) - \sum^{n-1}_{k=1}\phi_{n-1,k}\rho(n-k)}{1 - \sum^{n-1}_{k=1}\phi_{n-1,k} \rho(k)} $$
+
+Where
+
+-   $\phi_{n,k}= \phi_{n-1,k} - \phi_{n,n}\phi_{n-1,n-k}$ for $k\in[1,n-1]$
+
+-   $\rho(.)$ is the autocorrelation function
+
+**KPSS Test**
+
+-   The null-hypothesis is Stationary. Reject if is greater than $0.05$
+
+**Ljung-Box Test**
+
+-   $H_0$: The data is not correlated (white noise assumption)
+
+-   $H_a$: The data exhibits serial correlation
+
+-   Test statistics
+
+$$
+Q = n(n+2) \sum^h_{k=1} \frac{\hat{\rho}^2_k}{n - k}
+$$
+
+Where $n$ is the sample size $\hat{\rho_k}$ us the sample autocorrelation at lag $k$ and $h$ is the number of lags tested.
+
+Under $H_0$, $Q$ asymptotically follows $\chi^2_h$
+
+So for significance level $\alpha$, reject $H_0$ if
+
+$$
+Q > \chi^2_{1-\alpha,h}
+$$
+
+or if P-value is greater than $0.05$ reject the $H_0$
+
+**Code used in the Report:**
 
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 
