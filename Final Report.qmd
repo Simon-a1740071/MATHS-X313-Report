@@ -144,16 +144,6 @@ Therefore, from this exploratory data analysis, given the contextual background 
 
 ### Methods
 
--   Comprehensively described and justified modelling process and workflow in succinct manner.
-
--   Model(s) used are highly appropriate for research question and data with comprehensive justification.
-
--   Start at the beginning of EDA, talk about why and what was done. Provide evidence at every step. A person reading this section should if given data, be able to exactly replicate the analysis by following this section.
-
--   Make sure every single finding in the front piece has a table/figure in here to back it up. Same for any statements made in the discussion.
-
--   Ensure all table/figures have captions.
-
 Exploratory data analysis, modelling and model validation was done via R version 4.5.1 and RStudio using the package fable package `fpp3`. This package has the following built in:
 
 -   `tibble`
@@ -435,11 +425,30 @@ $$
 
 -   $\Phi_1(B^{12}) = 1 + 0.334B^{12}$
 
-```{r Tab10}
-report(TFR_bestFit)
+```{r Tab10, echo = FALSE, message = FALSE}}
+TFR_bestFit |>
+  tidy() |>
+  select(term:p.value) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Parameter estimates of the selected model for TFR, rounded to 3 significant figures") 
 ```
 
-```{r Fig9}
+```{r Tab11, echo = FALSE, message = FALSE}}
+TFR_bestFit |>
+  glance() |>
+  select(sigma2:BIC) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Statistics",
+    values_to = "Value"
+  ) |>
+  
+   knitr::kable(
+    caption = "Model fit statistics of the selected model for TFR, rounded to 3 significant figures") 
+```
+
+```{r Fig9,echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TFR by the model. See that over time, the projection models the downward trend. Uncertainty widens over time which is within expectation of Time Series. Note the cylical pattern isn't well captured here by the SARIMA model. As from contextual information, the prominence of this pattern only occured from 1970s onwards. It's possible that there isn't enough of the data too completely capture this cycle. Overall the projection of the test data is still within the 95% prediction intervals.", echo = FALSE, message = FALSE}
 TFR_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
@@ -457,11 +466,30 @@ $$
 
 -   $\Phi_1(B^{12}) = 1 + 0.302B^{12}$
 
-```{r Tab11}
-report(TLB_bestFit)
+```{r Tab12,echo = FALSE, message = FALSE}}
+TLB_bestFit |>
+  tidy() |>
+  select(term:p.value) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Parameter estimates of the selected model for TLB, rounded to 3 significant figures") 
 ```
 
-```{r Fig10}
+```{r Tab13, echo = FALSE, message = FALSE}}
+TLB_bestFit |>
+  glance() |>
+  select(sigma2:BIC) |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Statistics",
+    values_to = "Value"
+  ) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Model fit statistics of the selected model for TLB, rounded to 3 significant figures") 
+```
+
+```{r Fig10, echo = FALSE, message = FALSE}}
 TLB_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
