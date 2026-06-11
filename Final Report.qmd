@@ -53,8 +53,8 @@ TLB_fit <-
   train |>
   model(
     arima410011 = ARIMA(log(TLB) ~ pdq(4,1,0) + PDQ(0,1,1, period = 12)),
-    arima510010 = ARIMA(log(TLB) ~ pdq(5,1,0) + PDQ(0,1,0, period = 12)),
-    arima510011 = ARIMA(log(TLB) ~ pdq(5,1,0) + PDQ(0,1,1, period = 12)))
+    arima500010 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,0, period = 12)),
+    arima500011 = ARIMA(log(TLB) ~ pdq(5,0,0) + PDQ(0,1,1, period = 12)))
 ```
 
 ```{r}
@@ -380,35 +380,48 @@ train |>
                  difference(12), plot_type = 'partial', lag_max = 45)
 ```
 
-```{r Tab7}
+Candidate models have been fitted the test data in **Table 7**. Based on AICc alone the best possible model amongst the models with no first order differencing is seasonal MA(1) with an AICc of -105.
+
+```{r Tab7, echo = FALSE, message = FALSE}
 glance(TLB_fit) |>
   arrange(AICc) |>
-  select(.model:BIC)
+  select(.model:BIC) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Model selection statistics of Canidate SARIMA models for the log transforms of TFR based on AICc rounded to 3 significant figures. Note despite being unable to compared between models with differing numbers of differencing, the AR(4) model has the lowest AICc" )
 ```
 
-```{r Tab 8}
+Further model comparison is done, based on the RMSE in **Table 8**. See that an AR(4) model with both a first order and seasonal difference has the lowest RMSE of 3370. This is an unusually highly positive value and will be further discussed in the **Discussion and Conclusion**. However, out of the manually created candidate models, the selected as the best possible model is this.
+
+```{r Tab8, echo = FALSE, message = FALSE}
 TLB_fit |>
   forecast(new_data = test) |>
   accuracy(test) |>
   arrange(RMSE) |>
-  select(.model:MAPE)
+  select(.model:MAPE) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Forest Accuracy Statistics of Canidate SARIMA models for the log transforms of TLB based on RMSE rounded to 3 significant figures")
 ```
 
-```{r Fig8}
+```{r Fig8, fig.cap= "Time plot, ACF and histogram of residuals for selected best model. No signficant spikes in the ACF for lags. The residuals are appropriately white noise. The histogram centred around zero with an outlier between 0.10 and 0.15. Therefore can be used for forecasting",echo = FALSE, message = FALSE}
 TLB_fit |>
   select(arima410011) |>
   gg_tsresiduals(lag = 60) 
 ```
 
-```{r Tab9}
+```{r Tab9, echo = FALSE, message = FALSE}
 augment(TLB_fit) |>
   filter(.model == "arima410011") |>
-  features(.innov, ljung_box, lag = 24, dof = 5)
+  features(.innov, ljung_box, lag = 24, dof = 5) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Further checking with Ljung-Box Test of the selected model. The degree's of freedom are the parameters for the AR and MA components. It's p-value is greater than 0.05 so no significant difference compared to white noise") 
 ```
 
 ### Results
 
-These candidate models from **Methods** were fitted and their AICc, and MSE, along with their the residuals were evaluated. The best possible model was selected and used to forecast the Test data.
+Candidate models from **Methods** were fitted and their AICc, and MSE, along with their the residuals were evaluated. The best possible model was selected and used to forecast the Test data.
 
 #### TFR
 
