@@ -27,6 +27,17 @@ zodiac <- c( # Set up the Zodiac Cycle and bind it to the data
 fert_df |>
   mutate(Zodiac = zodiac[((Year - 1900) %% 12 + 1)]) |>
   relocate(Zodiac, .after = Year) -> fert_df
+
+# Train and Split datasets
+train <- 
+  fert_df |>
+  select(Year, TFR, TLB, Zodiac) |>
+  filter(Year <= 2012)
+
+test <-
+  fert_df |>
+  select(Year, TFR, TLB, Zodiac) |>
+  filter(Year > 2012) 
 ```
 
 ### Abstract
@@ -67,24 +78,25 @@ The dataset has been provided by the Singapore Department of Statistics[^1]. It 
 
 Singapore's demographic composition is majority ethnically Chinese[^3]. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cycle is used to mark Lunar New Year for populations of Chinese descent or cultural connection, such as China, Taiwan, Hong Kong, and especially so for Singapore. Additionally, in Chinese astrology there is a belief that an individual's personality, characteristics and future prospects are based on what zodiac animal the corresponding Gregorian year is[^4]. According to *Priceconomics (2015)*, for Singapore, there was concious effort by parents to time pregnancies so they align with the year of the Dragon. This is mainly because dragons are often associated with qualities of honesty, magnanimity and power. Conversely there is an aversion to years corresponding with the Tiger, as they're often associated with disobedience and long term difficulties for themselves and and surrounding family. The complete cycle of Zodiac Animals and the most recent years that they correspond with is seen in **Table 1**.
 
-[^3]: Cultural Atlas n.d., *Singaporean culture: population statistics*,
-    SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
+[^3]: Cultural Atlas n.d., *Singaporean culture: population statistics*, SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
 
 [^4]: Priceonomics 2015, *How the Chinese zodiac affects national birth rates*, Priceonomics, <https://priceonomics.com/how-the-chinese-zodiac-affects-national-birth/>
 
-```{r Table 1, echo = FALSE, message = FALSE}
+```{r Tab1, echo = FALSE, message = FALSE}
 # Table 1
 fert_df |>
   select(Year, Zodiac) |>
   tail(12) |>
-  knitr::kable(caption = "Table 1: The last twelve years and their corresponding Zodiac Animal")
+  knitr::kable(
+    caption = 
+      "The last twelve years and their corresponding Zodiac Animal")
 ```
 
 Hence, for this TFR and TLB there should be an expectation for peaks and troughs corresponding with Dragons and Tigers respectively. A cyclical pattern should be expected along with a downward trend[^5].
 
 [^5]: CNA 2023, *News analysis: Singapore's historic low fertility rate not worrying yet, with clearer sign to come for 2024 Year of the Dragon*, CNA, viewed 11 June 2026, <https://www.channelnewsasia.com/singapore/news-analysis-dip-singapore-2022-low-birth-rate-2024-dragon-year-5591231>
 
-Further exploratory analysis in the data shows that there is a case of a cyclical pattern, a decreasing trend, and peaks and troughs corresponding with Dragons and Tigers seen in **Figure 1** for TFR and **Figure 2** for TLB. It's seen here that this 12 year cyclical pattern becomes more prevalent for Dragon and Tiger years starting from 1976 despite the decreasing trend of fertility rate and live births hence smaller family sizes. Supporting *Priceconomics* *(2015)* which stipulated that this phenomena has only become more prevalent from the 1970s as Singapore modernised and industrialised.
+Further exploratory analysis in the data shows that there is a case of a cyclical pattern, a decreasing trend, and peaks and troughs corresponding with Dragons and Tigers seen in **Figure 1** for TFR and **Figure 2** for TLB. It's seen here that this 12 year cyclical pattern becomes more prevalent for Dragon and Tiger years starting from 1976 despite the decreasing trend of fertility rate and live births hence smaller family sizes. Supporting *Priceconomics* *(2015)* which stipulated that this as a result of smaller family sizes Zodiacal superstitions have influenced family planning. This phenomena has only become more prevalent from the 1970s as Singapore modernised and industrialised.
 
 Therefore, from this exploratory data analysis, given the contextual background of this dataset. *How well can a seasonal ARIMA model explain this 12 year cyclical pattern and forecast for the spanning 2013 to 2024, in particular point forecasting for Dragon and Tiger years?*
 
@@ -108,11 +120,41 @@ Therefore, from this exploratory data analysis, given the contextual background 
 
 -   Model(s) used are highly appropriate for research question and data with comprehensive justification.
 
-    -   What program and packages have been used. (e.g. R version 3.6)
+-   Start at the beginning of EDA, talk about why and what was done. Provide evidence at every step. A person reading this section should if given data, be able to exactly replicate the analysis by following this section.
 
-### Results
+-   Make sure every single finding in the front piece has a table/figure in here to back it up. Same for any statements made in the discussion.
 
-```{r Fig1, fig.cap = "Time plot of the annual Total Fertility Rate with peaks and troughs for Dragon and Tiger years highlighted."}
+-   Ensure all table/figures have captions.
+
+Exploratory data analysis, modelling and model validation was done via R version 4.5.1 and RStudio using the package fable package `fpp3`. This package has the following built in:
+
+-   `tibble`
+
+-   `dplyr`
+
+-   `tidyr`
+
+-   `lubridate`
+
+-   `ggplot2`
+
+-   `tsibble`
+
+-   `tsibbledata`
+
+-   `ggtime`
+
+-   `feasts`
+
+-   `fable`
+
+Additionally the packages `knitr` and `ggsci` are used for in the Quarto Markdown Document for formatting and presentation. The `.R` files for the EDA, modelling and the `.qmd` for the report along he `.csv` for both the raw and cleaned data are provided in the the github repository. The link to which is provided in the **Statistical Appendix**.
+
+The TFR and TLB for the full data spanning from 1960 to 2025 in **Figure 1** and **Figure 2** shows a decreasing trend. Additionally the variance is not constant over time. For TFR there is higher variability between for example the periods 1960 to 1975 versus lower variability of 1995 to 2024. This is also the case but more prevalent in total live births. Hence, there is heteroscedasticity in both time plots. Additionally, given the contextual background, it is then concluded that there a 12 year seasonal or cyclical pattern present in both variables.
+
+A new data column calculating and aligning the years to which zodiac animals correspond it corresponds to was added to the the dataset. This is to highlight the Dragon and Tiger years regardless of what their TFR and TLB was. Therefore it's seen clearly that from the 1970s, there are noticable peaks of troughs for Dragon and Tiger years. The data is concluded to be not stationary has it possess all three characteristics that violate this assumption being, a trend, heteroscedasticity and a seasonality.
+
+```{r Fig1, fig.cap = "Time plot of the annual Total Fertility Rate with peaks and troughs for Dragon and Tiger years highlighted.", echo = FALSE, message = FALSE}
 # Fig1
 fert_df |>
   ggplot(aes(x = Year, y = TFR, label = Year, )) +
@@ -127,7 +169,7 @@ fert_df |>
         legend.position = 'bottom')
 ```
 
-```{r Fig2, fig.cap = "Time plot of the annual Total Live Births with peaks and troughs of Dragon and Tiger years highlighted"}
+```{r Fig2, fig.cap = "Time plot of the annual Total Live Births with peaks and troughs of Dragon and Tiger years highlighted", echo = FALSE, message = FALSE}
 # Fig2
 fert_df |>
   ggplot(aes(x = Year, y = TLB, label = Year, )) +
@@ -142,19 +184,101 @@ fert_df |>
         legend.position = 'bottom')
 ```
 
+Before any transformations and differencing was done, the data was split into two sets, A training set spanning the periods from 1960 to 2012, and a testing set that only contains 2013 onwards to 2025.
+
+#### TFR
+
+First we consider not applying a seasonal difference of 12. The variable was first log transformed to remove the heterogeneity. Then a KPSS (Kwiatkowski-Phillips-Schmidt-Shin) test was conducted to check if the data is stationary. **Table 2** shows the test statistics, it's p-value and the number of differences needed. Here it requires a difference of order 2.
+
+```{r Tab2, echo = FALSE, message = FALSE}
+train |>
+  features(log(TFR), list(unitroot_kpss, 
+                                 unitroot_ndiffs)) |>
+  knitr::kable(
+    caption = "The KPSS test on Log transformed TFR. It's p-value is less then 0.05. So we reject the null hypothesis that's it's stationary. The number of differences needed is 2." )
+
+```
+
+In **Figure 3**, the assumption of stationarity is met. The log transformed TFR's ACF and PACF can now be evaluated for a candidate model. With the seasonal ACF, the lags are significant at 12 and 24. There is exponential decay for the seasonal lags here. Whereas on the PACF, the only significant correlating seasonal lag is 12. An appropriate seasonal component for the SARIMA is autoregressive, $(1,0,0)_{12}$.
+
+For the non-seasonal component, in the ACF, the last significant lag is 1. There is a damped sine-wave decay zero. The PACF however, the last significant lag is at 2 but only lag 1 correlated with the ACF. So concluded an moving average component that's twice differenced; $(1,2,0)$
+
+Hence assuming white noise $Z_t \sim \text{WN}(0,\sigma^2)$ an initial candidate model in the backward shift difference notation is $\text{SARIMA}(1,2,0)(1,0,0)_{12}$:
+
+$$
+\phi_1(B)\Phi_1 (B^{12})\nabla^2 \log(\text{TFR}_t) = Z_t
+$$
+
+```{r Fig3, fig.cap = "The time plot of the twice differenced log transformed TFR, it's ACF and PACF. The asusmption of stationarity is met here. It's wondering around zero and there no obivious patterns", echo = FALSE, message = FALSE, warning = FALSE}
+train |>
+  gg_tsdisplay(log(TFR) |> 
+                 difference(1) |>
+                 difference(1), 
+               plot_type = 'partial', lag_max = 45)
+```
+
+Now a seasonal difference of 12 years is implemented before removing the trend via a first order difference. Using the KPSS statistics again, it's shown that in **Table 3** the null-hypothesis is rejected as it is not stationary, there is still a first order difference needed to remove the trend.
+
+```{r Tab3, echo = FALSE, message = FALSE}
+train |>
+  features(log(TFR) |>
+             difference(12), list(unitroot_kpss, 
+                                 unitroot_ndiffs)) |>
+  knitr::kable(
+    caption = "The KPSS test on Log transformed TFR. It's p-value is less than 0.05. So we reject the null hypothesis that's it's stationary. The number of differences needed is 1." )
+```
+
+**Figure 4** shows that the time plot is now stationary. Only the seasonal lags 12 on the ACF is significant while the PACF displays insignificant seasonal lags that are exponentially decaying. So a moving average of 1 for the seasonal component will be considered.
+
+For the non-seasonal lags, on the ACF, it's last significant is 13, however it being too close to the seasonal lags, there could be an effect on it. This is the case at lag 8 as well. So lag 1 is significant on the ACF. Additionally there is a damped sine-wave decay to zero in both correlograms. On the PACF, the last significant lag is 4 with lag 1 also being significant correlating with the ACF plot. Potential models for this would be an AR(1) or AR(4).
+
+Candidate models to be considered, assuming white noise are:
+
+-   $\text{SARIMA}(1,1,0)(0,1,1)_{12}:$
+
+$$
+\phi_1(B)\nabla\nabla_{12}\log(\text{TFR}_t) = \Theta_1(B^{12})Z_t
+$$
+
+-   $\text{SARIMA}(4,1,0)(0,1,1)_{12}$
+
+$$
+\phi_4(B)\nabla\nabla_{12}\log(\text{TFR}_{t}) = \Theta_1(B^{12})Z_t
+$$
+
+```{r Fig4, fig.cap = "Time plot, ACF and PACF of the log transformed TFR seasonally differenced and first order differenced. It is is now stationary, note 12 data points have been removed, leaving only years from 1970s onwards.", echo = FALSE, message = FALSE, warning = FALSE}
+train |>
+  gg_tsdisplay(log(TFR) |> 
+                 difference(12) |>
+                 difference(1), 
+               plot_type = 'partial', lag_max = 45)
+```
+
+#### TFB
+
+Log transformed the total live births to remove the decreasing trend. Then first consider differencing by the 12 year cycle. Differencing again by the first order according to the time plot and KPSS test statistics. The seasonal lags in **Figure 5** for the ACF display an exponential decay, with only lag 12 being significant. Seasonal PACF has no significant seasonal lags but a exponential decay. An AR(1) will be considered.
+
+For the non-seasonal component, in the ACF, the last significant lag is 13 while the PACF the last significant is 10. Both too close to seasonal lags to be considered. So PACF lag 4 is significant and correlates with the ACF at the same lag. Hence an AR(4) model will be considered.
+
+-   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$
+
+```{r Fig5, }
+train |>
+  gg_tsdisplay(log(TLB) |>
+                 difference(12) |>
+                 difference(1),
+               plot_type = 'partial', lag_max = 45)
+```
+
+### Results
+
 -   Flawless estimated relevant time series model(s) and/or forecasts in R.
 
 -   Effectively and appropriately used composition of time series methods and advanced modelling for data.
 
 -   Critically interpreted and evaluated model fits with appropriate comprehensively use of diagnostics.
 
-    -   Start at the beginning of EDA, talk about why and what was done. Provide evidence at every step. A person reading this section should if given data, be able to exactly replicate the analysis by following this section.
-
-    -   Make sure every single finding in the front piece has a table/figure in here to back it up. Same for any statements made in the discussion.
-
-    -   Ensure all table/figures have captions.
-
-\newpage\]
+\newpage
 
 ### References
 
@@ -162,8 +286,7 @@ fert_df |>
 
 2.  Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder, <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
 
-3.  Cultural Atlas n.d., *Singaporean culture: population statistics*,
-    SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
+3.  Cultural Atlas n.d., *Singaporean culture: population statistics*, SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
 
 4.  Priceonomics 2015, *How the Chinese zodiac affects national birth rates*, Priceonomics, <https://priceonomics.com/how-the-chinese-zodiac-affects-national-birth/>
 
@@ -176,3 +299,9 @@ fert_df |>
 -   A full mathematical description of any time series model, statistical test and estimation procedure.
 
 -   [Github Repository](https://github.com/Simon-a1740071/MATHS-X313-Report)
+
+-   Code used in the Report:
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
