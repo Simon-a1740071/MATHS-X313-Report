@@ -70,17 +70,15 @@ TLB_bestFit <-
 
 ### Abstract
 
--   Comprehensively and succinctly summarised research question, analysis, and key findings.
+Total Fertility Rate (TFR) and Total Live Births (TLB) for Singapore spanning 1960 to 2025 were analysed and determined if a Seasonal ARIMA (SARIMA) model can completely capture the long term decline. Additionally if it could capture the 12 year cyclical nature of the data, given contextual background on Chinese Astrology with relation to Zodiac Animals.
 
-    -   Prioritise findings. Most important comes first.
+It's seen in **Figures 1** and **Figures 2** that this data exhibits strong downward trends and a non-constant variance with visible peaks and troughs in Dragon and Tigers years most prominent from 1970s onwards. Supporting the notion of a 12 year cycle.
 
-    -   Only talk about significant/ important findings
+With TFR, the selected model $\text{SARIMA}(4,1,0)(1,1,0)_{12}$ has the lowest forecast error in **Table 5** and is consistent with white noise assumptions presented in **Figure 5** and **Table 6**. This model has captured the declining trend and remained within 95% expectation of a Time Series shown in **Figure 9**. However, has failed to fully capture the 12-year cyclical pattern in Be it due to lack of data or a more complex modelling is required.
 
-    -   Be concise, short, sharp and accurate.
+TLB, it's best possible model was of the same structure as TFR, yielding the lowest root mean square error among other potential models in **Table 8**. Further residual diagnostics presented in **Figures 8** and **Table 9** supports this. However, forecasts in **Figure 10** shows high uncertainty and insufficiently capture the decline in live births or the cyclical nature.
 
-    -   Reference every finding with a table/figure
-
--   Statistical results translated into accessible and accurate description for non-scientific audience.
+SARIMA models were successful in modelling the declining trend in total fertility rates in Singapore, producing forecasts for the this variable that were within expectation despite not capturing the 12 year cycle effectively for father into the forecasts. Modelling for total live births was however far less fruitful in capturing the more volatile and cyclical nature of the data. Suggesting that SARIMA does explains the data well enough, additional resources, more complex modelling may be required to model Zodiacal lead family planning.
 
 ### Introduction
 
@@ -126,7 +124,7 @@ Hence, for this TFR and TLB there should be an expectation for peaks and troughs
 
 Further exploratory analysis in the data shows that there is a case of a cyclical pattern, a decreasing trend, and peaks and troughs corresponding with Dragons and Tigers seen in **Figure 1** for TFR and **Figure 2** for TLB. It's seen here that this 12 year cyclical pattern becomes more prevalent for Dragon and Tiger years starting from 1976 despite the decreasing trend of fertility rate and live births hence smaller family sizes. Supporting *Priceconomics* *(2015)* which stipulated that this as a result of smaller family sizes Zodiacal superstitions have influenced family planning. This phenomena has only become more prevalent from the 1970s as Singapore modernised and industrialised.
 
-Therefore, from this exploratory data analysis, given the contextual background of this dataset. *How well can a seasonal ARIMA model explain this 12 year cyclical pattern and forecast for the spanning 2013 to 2024, in particular point forecasting for Dragon and Tiger years?*
+Therefore, from this exploratory data analysis, given the contextual background of this dataset. *How well can a seasonal ARIMA model explain and capture this 12 year cyclical pattern and forecast for the period spanning 2013 to 2024?*
 
 ### Discussion and Conclusion
 
@@ -448,7 +446,7 @@ TFR_bestFit |>
     caption = "Model fit statistics of the selected model for TFR, rounded to 3 significant figures") 
 ```
 
-```{r Fig9,echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TFR by the model. See that over time, the projection models the downward trend. Uncertainty widens over time which is within expectation of Time Series. Note the cylical pattern isn't well captured here by the SARIMA model. As from contextual information, the prominence of this pattern only occured from 1970s onwards. It's possible that there isn't enough of the data too completely capture this cycle. Overall the projection of the test data is still within the 95% prediction intervals.", echo = FALSE, message = FALSE}
+```{r Fig9,echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TFR by the model. See that over time, the projection models the downward trend. Uncertainty widens over time which is within expectation of Time Series. Note the cylical pattern isn't well captured here by the SARIMA model. As from contextual information, the prominence of this pattern only occured from 1970s onwards. It's possible that there isn't enough of the data too completely capture this cycle. Overall the projection of the test data is still within the 95% prediction intervals."}
 TFR_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
@@ -489,7 +487,7 @@ TLB_bestFit |>
     caption = "Model fit statistics of the selected model for TLB, rounded to 3 significant figures") 
 ```
 
-```{r Fig10, echo = FALSE, message = FALSE}}
+```{r Fig10, echo = FALSE, message = FALSE, fig.cap= "The projected forecast of TLB by the selected model. This has wider prediction bands suggestiong higher volatility and fluctuations. Fails to capture the decreasing trend and cylical nature of the data. Hence a SARIMA model may not be best are at modelling total live births despite still being with in the 95% prediction intervals."}}
 TLB_bestFit |>
   forecast(new_data = test) |>
   autoplot(fert_df)
