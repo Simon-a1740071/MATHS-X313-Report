@@ -4,12 +4,12 @@ format: pdf
 editor: visual
 ---
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 # Load library
 pacman::p_load(fpp3)
 ```
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 # Load the cleaned Dataset 
 read.csv(
   here::here(
@@ -45,9 +45,11 @@ fert_df |>
 
 ### Introduction
 
--   Clear, comprehensive, and highly relevant background information provided for data context.
+The dataset has been provided by the Singapore Department of Statistics[^1]. It primarily covers births and fertility rates within Singapore, collecting data concerning a variety of variables from 1960 to 2025. However for the purpose of this data analysis and modelling the main variables that will be considered are[^2]:
 
-The dataset has been provided by the Singapore Department of Statistics. It primarily covers births and fertility rates within Singapore, collecting data concerning a variety of variables from 1960 to 2025. However for the purpose of this data analysis and modelling the main variables that will be considered are:
+[^1]: Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg, <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
+
+[^2]: Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder, <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
 
 -   `Year`:
 
@@ -63,18 +65,28 @@ The dataset has been provided by the Singapore Department of Statistics. It prim
 
     -   Data is concerned with all live births within Singapore and its territorial waters as registered by the Singaporean government at the year of birth.
 
-Additionally, Singapore's demographic composition is majority ethnically Chinese. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cyce is used to mark Lunar New Year for populations of Chinese descent or with Chinese historical connection, such as China, Taiwan, Hong Kong, Vietnam and especially so for Singapore. The complete list of Zodiac Animals and the most recent years that they correspond to is seen in **Table 1**.
+Singapore's demographic composition is majority ethnically Chinese[^3]. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cycle is used to mark Lunar New Year for populations of Chinese descent or with Chinese historical connection, such as China, Taiwan, Hong Kong, and especially so for Singapore. Additionally, in Chinese astrology there is a belief that an individual's personality, characteristics and future prospects are based on what zodiac animal the corresponding Gregorian year is[^4]. According to *Priceconomics (2015)*, for Singapore, there was concious effort by parents to time pregnancies so they align with the year of the Dragon. This mainly because dragons are often associated with qualities of honesty, magnanimity and power. Conversely there is an aversion to years corresponding with the Tiger, as they're often associated with disobedience and long term difficulties for themselves and and surrounding family. The complete cycle of Zodiac Animals and the most recent years that they correspond with is seen in **Table 1**.
+
+[^3]: Cultural Atlas n.d., *Singaporean culture: population statistics*,
+    SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
+
+[^4]: Priceonomics 2015, *How the Chinese zodiac affects national birth rates*, Priceonomics, <https://priceonomics.com/how-the-chinese-zodiac-affects-national-birth/>
 
 ```{r Table 1, echo = FALSE, message = FALSE}
+# Table 1
 fert_df |>
   select(Year, Zodiac) |>
   tail(12) |>
   knitr::kable(caption = "Table 1: The last twelve years and their corresponding Zodiac Animal")
 ```
 
--   Research question clearly and succinctly stated, well-motivated by EDA and strongly linked to data context (e.g. using previous studies)
+Hence, for this TFR and TLB there should be an expectation for peaks and troughs corresponding with Dragons and Tigers respectively. A cyclical pattern should be expected along with a downward trend[^5].
 
-    -   Aim of the report
+[^5]: CNA 2023, *News analysis: Singapore's historic low fertility rate not worrying yet, with clearer sign to come for 2024 Year of the Dragon*, CNA, viewed 11 June 2026, <https://www.channelnewsasia.com/singapore/news-analysis-dip-singapore-2022-low-birth-rate-2024-dragon-year-5591231>
+
+Further exploratory analysis in the data shows that there is a case of a cyclical pattern, a decreasing trend, and peaks and troughs corresponding with Dragons and Tigers seen in **Figure 1** for TFR and **Figure 2** for TLB. It's seen here that this 12 year cyclical pattern becomes more prevalent for Dragon and Tiger years starting from 1976 despite the decreasing trend of fertility rate and live births hence smaller family sizes. Supporting *Priceconomics* *(2015)* which stipulated that this phenomena has only become more prevalent from the 1970s as Singapore modernised and industrialised.
+
+Therefore, from this exploratory data analysis, given the contextual background of this dataset. *How well can a seasonal ARIMA, model this 12 year cyclical pattern and forecast for period spanning 2013 to 2024, in particular point forecasting for Dragon and Tiger years?*
 
 ### Discussion and Conclusion
 
@@ -100,6 +112,36 @@ fert_df |>
 
 ### Results
 
+```{r Fig1, fig.cap = "Time plot of the annual Total Fertility Rate with peaks and troughs for Dragon and Tiger years highlighted."}
+# Fig1
+fert_df |>
+  ggplot(aes(x = Year, y = TFR, label = Year, )) +
+  geom_line() +
+  geom_point(colour = "gray") +
+  geom_point(aes(colour = Zodiac),
+             data = filter(fert_df, Zodiac %in% c("Dragon", "Tiger"))) +
+  scale_x_continuous(breaks = filter(fert_df, 
+                                     Zodiac %in% c("Dragon", "Tiger"))$Year) +
+  ggsci::scale_color_lancet("lanonc") +
+  theme(axis.text.x = element_text(angle = 50, hjust = 1),
+        legend.position = 'bottom')
+```
+
+```{r Fig2, fig.cap = "Time plot of the annual Total Live Births with peaks and troughs of Dragon and Tiger years highlighted"}
+# Fig2
+fert_df |>
+  ggplot(aes(x = Year, y = TLB, label = Year, )) +
+  geom_line() +
+  geom_point(colour = "gray") +
+  geom_point(aes(colour = Zodiac),
+             data = filter(fert_df, Zodiac %in% c("Dragon", "Tiger"))) +
+  scale_x_continuous(breaks = filter(fert_df, 
+                                     Zodiac %in% c("Dragon", "Tiger"))$Year) +
+  ggsci::scale_color_lancet("lanonc") +
+  theme(axis.text.x = element_text(angle = 50, hjust = 1),
+        legend.position = 'bottom')
+```
+
 -   Flawless estimated relevant time series model(s) and/or forecasts in R.
 
 -   Effectively and appropriately used composition of time series methods and advanced modelling for data.
@@ -112,10 +154,22 @@ fert_df |>
 
     -   Ensure all table/figures have captions.
 
+\newpage\]
+
 ### References
 
--   Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg. <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
--   Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder. <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
+1.  Singapore Department of Statistics. (2026). *Births and fertility rates, annual* \[Data set\]. data.gov.sg, <https://data.gov.sg/datasets/d_e39eeaeadb571c0d0725ef1eec48d166/view>
+
+2.  Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder, <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
+
+3.  Cultural Atlas n.d., *Singaporean culture: population statistics*,
+    SBS, <https://culturalatlas.sbs.com.au/singaporean-culture/singaporean-culture-population-statistics>
+
+4.  Priceonomics 2015, *How the Chinese zodiac affects national birth rates*, Priceonomics, <https://priceonomics.com/how-the-chinese-zodiac-affects-national-birth/>
+
+5.  CNA 2023, *News analysis: Singapore's historic low fertility rate not worrying yet, with clearer sign to come for 2024 Year of the Dragon*, CNA, viewed 11 June 2026, <https://www.channelnewsasia.com/singapore/news-analysis-dip-singapore-2022-low-birth-rate-2024-dragon-year-5591231>
+
+\newpage
 
 ### Statistical Appendix
 
