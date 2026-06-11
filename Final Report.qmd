@@ -4,15 +4,113 @@ format: pdf
 editor: visual
 ---
 
+```{r}
+# Load library
+pacman::p_load(fpp3)
+```
+
+```{r}
+# Load the cleaned Dataset 
+read.csv(
+  here::here(
+    "AnnualFertilityData_Cleaned.csv"), # This can be found on github
+  check.names = FALSE
+) |>
+  tsibble(index = Year) -> fert_df
+
+zodiac <- c( # Set up the Zodiac Cycle and bind it to the data
+  "Rat", "Ox", "Tiger", "Rabbit",
+  "Dragon", "Snake", "Horse", "Goat",
+  "Monkey", "Rooster", "Dog", "Pig"
+)
+
+fert_df |>
+  mutate(Zodiac = zodiac[((Year - 1900) %% 12 + 1)]) |>
+  relocate(Zodiac, .after = Year) -> fert_df
+```
+
 ### Abstract
+
+-   Comprehensively and succinctly summarised research question, analysis, and key findings.
+
+    -   Prioritise findings. Most important comes first.
+
+    -   Only talk about significant/ important findings
+
+    -   Be concise, short, sharp and accurate.
+
+    -   Reference every finding with a table/figure
+
+-   Statistical results translated into accessible and accurate description for non-scientific audience.
 
 ### Introduction
 
+-   Clear, comprehensive, and highly relevant background information provided for data context.
+
+The dataset has been provided by the Singapore Department of Statistics. It primarily covers births and fertility rates within Singapore, collecting data concerning a variety of variables from 1960 to 2025. However for the purpose of this data analysis and modelling the main variables that will be considered are:
+
+-   `Year`:
+
+    -   The EDA will be concerned with the entire period of 1960 to 2025. However for modelling and forecasting, it pertains to the periods 1960 to 2012, and 2013 to 2024 respectively.
+
+-   `TLF`: Total Fertility Rate
+
+    -   This refers to the average number of live-births each female would have during her reproductive years, subjected to prevailing age-specific fertility rates in the population in the given year.
+
+    -   Additionally data prior to 1980 pertains to total population while onwards pertains to resident population (Singaporean citizens and permanent residents.
+
+-   `TLB`: Total Live Births
+
+    -   Data is concerned with all live births within Singapore and its territorial waters as registered by the Singaporean government at the year of birth.
+
+Additionally, Singapore's demographic composition is majority ethnically Chinese. This is worth noting as Chinese astrology, the culture and traditions relating to such have a sizable effect on the dataset provided. To further elaborate, aside from the typical Gregorian calendar used for dating. A lunar based calendar corresponding with the zodiac cyce is used to mark Lunar New Year for populations of Chinese descent or with Chinese historical connection, such as China, Taiwan, Hong Kong, Vietnam and especially so for Singapore. The complete list of Zodiac Animals and the most recent years that they correspond to is seen in **Table 1**.
+
+```{r Table 1, echo = FALSE, message = FALSE}
+fert_df |>
+  select(Year, Zodiac) |>
+  tail(12) |>
+  knitr::kable(caption = "Table 1: The last twelve years and their corresponding Zodiac Animal")
+```
+
+-   Research question clearly and succinctly stated, well-motivated by EDA and strongly linked to data context (e.g. using previous studies)
+
+    -   Aim of the report
+
+### Discussion and Conclusion
+
+-   Thoroughly integrated limitations of models and processes into statistical conclusions.
+
+-   Comprehensively evaluated impact of model limitations on answering research question.
+
+    -   Do not repeat findings here
+
+    -   Any weirdness in findings that needs to be explored further or retested should be discussed.
+
+    -   Highlight missing data and possible sources of confounding or lurking variables
+
+    -   Discuss models, their outcomes and predictions with relevance to research question.
+
 ### Methods
 
-### Discussion
+-   Comprehensively described and justified modelling process and workflow in succinct manner.
 
-### Conclusion
+-   Model(s) used are highly appropriate for research question and data with comprehensive justification.
+
+    -   What program and packages have been used. (e.g. R version 3.6)
+
+### Results
+
+-   Flawless estimated relevant time series model(s) and/or forecasts in R.
+
+-   Effectively and appropriately used composition of time series methods and advanced modelling for data.
+
+-   Critically interpreted and evaluated model fits with appropriate comprehensively use of diagnostics.
+
+    -   Start at the beginning of EDA, talk about why and what was done. Provide evidence at every step. A person reading this section should if given data, be able to exactly replicate the analysis by following this section.
+
+    -   Make sure every single finding in the front piece has a table/figure in here to back it up. Same for any statements made in the discussion.
+
+    -   Ensure all table/figures have captions.
 
 ### References
 
@@ -20,5 +118,7 @@ editor: visual
 -   Singapore Department of Statistics. (2026). *Births, crude birth rate (CBR), total fertility rate (TFR) and reproduction rates* \[Data set\]. SingStat Table Builder. <https://tablebuilder.singstat.gov.sg/table/TS/M810091>
 
 ### Statistical Appendix
+
+-   A full mathematical description of any time series model, statistical test and estimation procedure.
 
 -   [Github Repository](https://github.com/Simon-a1740071/MATHS-X313-Report)
