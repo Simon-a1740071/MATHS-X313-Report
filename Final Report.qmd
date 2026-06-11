@@ -1,5 +1,5 @@
 ---
-title: "Final Report: SARIMA Modelling of Singapore'S Total Fertility Rate and Total Live Births"
+title: "Final Report: SARIMA Modelling of Singapore's Total Fertility Rate and Total Live Births"
 format: pdf
 editor: visual
 ---
