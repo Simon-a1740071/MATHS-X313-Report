@@ -40,6 +40,34 @@ test <-
   filter(Year > 2012) 
 ```
 
+```{r, echo = FALSE, message = FALSE}
+# Model Fitting on Train
+TFR_fit <-
+  train |> 
+  model(
+    arima120100 = ARIMA(log(TFR) ~ pdq(1,2,0) + PDQ(1,0,0, period = 12)),
+    arima110110 = ARIMA(log(TFR) ~ pdq(1,1,0) + PDQ(1,1,0, period = 12)), 
+    arima410110 = ARIMA(log(TFR) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)))
+
+TLB_fit <-
+  train |>
+  model(
+    arima410011 = ARIMA(log(TLB) ~ pdq(4,1,0) + PDQ(0,1,1, period = 12)),
+    arima510010 = ARIMA(log(TLB) ~ pdq(5,1,0) + PDQ(0,1,0, period = 12)),
+    arima510011 = ARIMA(log(TLB) ~ pdq(5,1,0) + PDQ(0,1,1, period = 12)))
+```
+
+```{r}
+# Model Fitting on Test
+TFR_bestFit <-
+  train |>
+  model(arima410110 = ARIMA(log(TFR) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)))
+
+TLB_bestFit <-
+  train |>
+  model(arima410110 = ARIMA(log(TLB) ~ pdq(4,1,0) + PDQ(1,1,0, period = 12)))
+```
+
 ### Abstract
 
 -   Comprehensively and succinctly summarised research question, analysis, and key findings.
@@ -194,8 +222,9 @@ First we consider not applying a seasonal difference of 12. The variable was fir
 train |>
   features(log(TFR), list(unitroot_kpss, 
                                  unitroot_ndiffs)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
   knitr::kable(
-    caption = "The KPSS test on Log transformed TFR. It's p-value is less then 0.05. So we reject the null hypothesis that's it's stationary. The number of differences needed is 2." )
+    caption = "The KPSS test on Log transformed TFR.Rounded to 3 significant figures. It's p-value is less then 0.05. So reject the null hypothesis that's it's stationary. The number of differences needed is 2." )
 
 ```
 
@@ -224,26 +253,27 @@ train |>
   features(log(TFR) |>
              difference(12), list(unitroot_kpss, 
                                  unitroot_ndiffs)) |>
+  mutate
   knitr::kable(
     caption = "The KPSS test on Log transformed TFR. It's p-value is less than 0.05. So we reject the null hypothesis that's it's stationary. The number of differences needed is 1." )
 ```
 
-**Figure 4** shows that the time plot is now stationary. Only the seasonal lags 12 on the ACF is significant while the PACF displays insignificant seasonal lags that are exponentially decaying. So a moving average of 1 for the seasonal component will be considered.
+**Figure 4** shows that the time plot is now stationary. Only the seasonal lags 12 on the ACF is significant while the PACF displays insignificant seasonal lags that are exponentially decaying. So a auto-regression of 1 for the seasonal component will be considered.
 
 For the non-seasonal lags, on the ACF, it's last significant is 13, however it being too close to the seasonal lags, there could be an effect on it. This is the case at lag 8 as well. So lag 1 is significant on the ACF. Additionally there is a damped sine-wave decay to zero in both correlograms. On the PACF, the last significant lag is 4 with lag 1 also being significant correlating with the ACF plot. Potential models for this would be an AR(1) or AR(4).
 
 Candidate models to be considered, assuming white noise are:
 
--   $\text{SARIMA}(1,1,0)(0,1,1)_{12}:$
+-   $\text{SARIMA}(1,1,0)(1,1,0)_{12}:$
 
 $$
-\phi_1(B)\nabla\nabla_{12}\log(\text{TFR}_t) = \Theta_1(B^{12})Z_t
+\phi_1(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TFR}_t) = Z_t
 $$
 
--   $\text{SARIMA}(4,1,0)(0,1,1)_{12}$
+-   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$
 
 $$
-\phi_4(B)\nabla\nabla_{12}\log(\text{TFR}_{t}) = \Theta_1(B^{12})Z_t
+\phi_4(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TFR}_{t}) = Z_t
 $$
 
 ```{r Fig4, fig.cap = "Time plot, ACF and PACF of the log transformed TFR seasonally differenced and first order differenced. It is is now stationary, note 12 data points have been removed, leaving only years from 1970s onwards.", echo = FALSE, message = FALSE, warning = FALSE}
@@ -254,15 +284,61 @@ train |>
                plot_type = 'partial', lag_max = 45)
 ```
 
+The candidate models were fitted to the training data and their AICc evaluated seen in **Table 4**. Amongst the two models with the same total differencing, the AR(1) model has the lowest AICc of -100.
+
+```{r Tab4,echo = FALSE, message = FALSE}
+glance(TFR_fit) |>
+  arrange(AICc) |>
+  select(.model:BIC) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Model selection statistics of Canidate SARIMA models for the log transforms of TFR based on AICc rounded to 3 significant figures") 
+```
+
+-   When comparing with the the root mean squared error, the AR(4) model has the lowest value in **Table 5** despite having a slightly higher AICc. The twice first order differenced model has the largest RMSE of 1.18. So the best possible model is an AR(4).
+
+```{r Tab5,echo = FALSE, message = FALSE}
+TFR_fit |>
+  forecast(new_data = test) |>
+  accuracy(test) |>
+  arrange(RMSE) |>
+  select(.model:MAPE) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Forest Accuracy Statistics of Canidate SARIMA models for the log transforms of TFR based on RMSE rounded to 3 significant figures") 
+  
+```
+
+The residuals are then evaluated to check if they meet the white noise assumption for the selected model in **Figure 5**. A Ljung-box test is then use to reconfirm the white noise assumption in **Table 6**.
+
+```{r Fig5, fig.cap= "Time plot, ACF and histogram of residuals for selected best model. No signficant spikes in the ACF for lags, the residuals are appropriately white noise. The histogram centred around zero with an outlier around 0.2. Therefore can be used for forecasting",echo = FALSE, message = FALSE}
+TFR_fit |>
+  select(arima410110) |>
+  gg_tsresiduals(lag = 60) 
+```
+
+```{r Tab6,echo = FALSE, message = FALSE}
+augment(TFR_fit) |>
+  filter(.model == "arima410110") |>
+  features(.innov, ljung_box, lag = 24, dof = 5) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "Ljung-Box Test of the selected model. The degree's of freedom are the parameters for the AR and MA components. It's p-value is greater than 0.05 so no significant difference compared to white noise") 
+```
+
 #### TFB
 
-Log transformed the total live births to remove the decreasing trend. Then first consider differencing by the 12 year cycle. Differencing again by the first order according to the time plot and KPSS test statistics. The seasonal lags in **Figure 5** for the ACF display an exponential decay, with only lag 12 being significant. Seasonal PACF has no significant seasonal lags but a exponential decay. An AR(1) will be considered.
+Log transformed the total live births to remove the decreasing trend. Then first consider differencing by the 12 year cycle. Differencing again by the first order according to the time plot and KPSS test statistics. The seasonal lags in **Figure 6** for the ACF display an exponential decay, with only lag 12 being significant. Seasonal PACF has no significant seasonal lags but a exponential decay. An AR(1) will be considered.
 
 For the non-seasonal component, in the ACF, the last significant lag is 13 while the PACF the last significant is 10. Both too close to seasonal lags to be considered. So PACF lag 4 is significant and correlates with the ACF at the same lag. Hence an AR(4) model will be considered.
 
 -   $\text{SARIMA}(4,1,0)(1,1,0)_{12}$
 
-```{r Fig5, }
+$$
+\phi_4(B)\Phi_1(B)\nabla\nabla_{12}\log(\text{TLB}_t) = Z_t
+$$
+
+```{r Fig6,fig.cap = "Time plot, ACF and PACF of the log transformed TLB seasonally differenced and first order differenced. It is is now stationary, note 12 data points have been removed, leaving only years from 1970s onwards.", echo = FALSE, message = FALSE, warning = FALSE}
 train |>
   gg_tsdisplay(log(TLB) |>
                  difference(12) |>
@@ -270,13 +346,113 @@ train |>
                plot_type = 'partial', lag_max = 45)
 ```
 
+Additionally considered only the seasonal difference in **Figure 6**. The KPSS test statistic in **Table 6** after differencing by 12 years shows that the time plot is stationary and no first order differencing is required.
+
+```{r Tab6, echo = FALSE, message = FALSE}
+train |>
+  features(log(TLB) |>
+             difference(12), list(unitroot_kpss, 
+                                 unitroot_ndiffs)) |>
+  mutate_if(is.numeric, ~ as.character(signif(.,3))) |>
+  knitr::kable(
+    caption = "The KPSS test on Log transformed TKB.Rounded to 3 significant figures. It's p-value is greater than 0.05. Accept the null hypothesis that's it's stationary. No first order difference needed")
+```
+
+In **Figure 7** Seasonal ACF and PACF lags are difficult to determine, however on the ACF, only lag 12 is significant. Considered a seasonal component of no MA and AR. As well as a an AR(1) model.
+
+The ACF shows a prominent sine wave decay while the PACF is possibly an exponential decay. Last significant lag in the PACF is 5 so considered an AR(5) model.
+
+-   $\text{SARIMA}(5,0,0)(0,1,0)_{12}$
+
+$$
+\phi_5(B)\nabla_{12}\log(\text{TLB}_t)= Z_t
+$$
+
+-   $\text{SARIMA}(5,0,0)(1,1,0)_{12}$
+
+$$
+\phi_5(B)\Phi_1(B)\nabla_{12}\log(\text{TFR_t)} = Z_t
+$$
+
+```{r Fig7, fig.cap = "Time plot, ACF and PACF of the log transformed TLB  seasonally differenced only. It is stationary according to the KPPS test, note 12 data points have been removed, leaving only years from 1970s onwards. A strong sine decaying sine wave is present in the ACF", echo = FALSE, message = FALSE, warning = FALSE}
+train |>
+  gg_tsdisplay(log(TLB) |>
+                 difference(12), plot_type = 'partial', lag_max = 45)
+```
+
+```{r Tab7}
+glance(TLB_fit) |>
+  arrange(AICc) |>
+  select(.model:BIC)
+```
+
+```{r Tab 8}
+TLB_fit |>
+  forecast(new_data = test) |>
+  accuracy(test) |>
+  arrange(RMSE) |>
+  select(.model:MAPE)
+```
+
+```{r Fig8}
+TLB_fit |>
+  select(arima410011) |>
+  gg_tsresiduals(lag = 60) 
+```
+
+```{r Tab9}
+augment(TLB_fit) |>
+  filter(.model == "arima410011") |>
+  features(.innov, ljung_box, lag = 24, dof = 5)
+```
+
 ### Results
 
--   Flawless estimated relevant time series model(s) and/or forecasts in R.
+These candidate models from **Methods** were fitted and their AICc, and MSE, along with their the residuals were evaluated. The best possible model was selected and used to forecast the Test data.
 
--   Effectively and appropriately used composition of time series methods and advanced modelling for data.
+#### TFR
 
--   Critically interpreted and evaluated model fits with appropriate comprehensively use of diagnostics.
+$\text{SARIMA}(4,1,0)(1,1,0)_{12}$:
+
+$$
+\phi_4(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TFR}) = Z_t
+$$
+
+-   $\phi_4(B) = 1 - 0.450B + 0.059B^2 - 0.333B^3 + 0.405B^4$
+
+-   $\Phi_1(B^{12}) = 1 + 0.334B^{12}$
+
+```{r Tab10}
+report(TFR_bestFit)
+```
+
+```{r Fig9}
+TFR_bestFit |>
+  forecast(new_data = test) |>
+  autoplot(fert_df)
+```
+
+#### TLB
+
+$\text{SARIMA}(4,1,0)(1,1,0)_{12}:$
+
+$$
+\phi_4(B)\Phi_1(B^{12})\nabla\nabla_{12}\log(\text{TLB}) = Z_t
+$$
+
+-   $\phi_4(B) = 1 - 0.293B - 0.0507B^2 - 0.243B^3 + 0.444B^4$
+
+-   $\Phi_1(B^{12}) = 1 + 0.302B^{12}$
+
+```{r Tab11}
+report(TLB_bestFit)
+```
+
+```{r Fig10}
+TLB_bestFit |>
+  forecast(new_data = test) |>
+  autoplot(fert_df)
+```
 
 \newpage
 
