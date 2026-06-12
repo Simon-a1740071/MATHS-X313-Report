@@ -16,7 +16,12 @@ Hi, the three files:
 * `EDA.R`
 * `EDA.pdf`
 
-Will not be worked on further and have received a final update to them. I'm just going to make another R script, quarto for EDA and modelling. Then upload an Html file (not for marking purposes) for the EDA. This EDA will have pretty much the same analysis and discussion, but better. 
+Will not be worked on further and have received a final update to them. I'm just going to make another R script, quarto for EDA and modelling.
+
+Please see: 
+* `New_EDA.R`
+* `Modelling.R`
+For further analysis, modelling and forecasting of TFR and TLB.
 
 ## Contents
 
@@ -44,7 +49,7 @@ Will not be worked on further and have received a final update to them. I'm just
 
 ## Statistical Report
 
-__Research Question:__ 
+__Research Question:__ How well can a seasonal ARIMA model explain and capture this 12 year cyclical pattern and forecast for the period spanning 2013 to 2024?
 
 ## References
 
